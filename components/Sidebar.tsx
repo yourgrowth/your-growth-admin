@@ -84,7 +84,7 @@ export default function Sidebar() {
         style={{ borderBottom: '1px solid #1a2332' }}
       >
         <span className="text-sm font-bold" style={{ color: '#3fb950' }}>
-          🌿 BONSAI
+          YOUR GROWTH
         </span>
         <span className="text-xs" style={{ color: '#7d8fa3' }}>
           ADMIN PANEL

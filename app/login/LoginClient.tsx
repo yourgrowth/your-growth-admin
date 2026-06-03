@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { logLoginAttempt, logAdminLogin } from '@/app/actions/security'
 
@@ -14,7 +13,6 @@ const inputStyle: React.CSSProperties = {
 }
 
 export default function LoginClient({ initialError }: { initialError?: string }) {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -42,7 +40,7 @@ export default function LoginClient({ initialError }: { initialError?: string })
     })
 
     if (authError || !data.user) {
-      const { failureCount } = await logLoginAttempt(email, false)
+      const { failureCount } = await logLoginAttempt(email, false).catch(() => ({ failureCount: 0 }))
       const remaining = MAX_ATTEMPTS - failureCount
       setAttemptsRemaining(remaining > 0 ? remaining : 0)
 
@@ -57,17 +55,17 @@ export default function LoginClient({ initialError }: { initialError?: string })
       return
     }
 
-    await logLoginAttempt(email, true)
-    await logAdminLogin(data.user.id, navigator.userAgent)
+    // Non-blocking — missing tables must not prevent login
+    try { await logLoginAttempt(email, true) } catch {}
+    try { await logAdminLogin(data.user.id, navigator.userAgent) } catch {}
 
     // Check if MFA step-up is required
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
     if (aal?.nextLevel === 'aal2' && aal?.currentLevel !== 'aal2') {
-      router.push('/login/verify')
+      window.location.href = '/login/verify'
     } else {
-      router.push('/dashboard')
+      window.location.href = '/dashboard'
     }
-    router.refresh()
   }
 
   return (
@@ -81,7 +79,7 @@ export default function LoginClient({ initialError }: { initialError?: string })
       >
         <div className="flex flex-col gap-1">
           <span className="text-lg font-bold" style={{ color: '#3fb950' }}>
-            🌿 BONSAI
+            YOUR GROWTH
           </span>
           <p className="text-xs" style={{ color: '#7d8fa3' }}>
             Admin Panel — sign in to continue
