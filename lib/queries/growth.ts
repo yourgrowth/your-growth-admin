@@ -24,7 +24,7 @@ export async function getUpgradeCandidates(): Promise<GrowthProfile[]> {
   const admin = createAdminClient()
   const { data } = await admin
     .from('profiles')
-    .select('id, username, plan, full_name, streak, ai_calls_used_this_month, created_at, last_sign_in_at')
+    .select('id, username, plan, full_name, streak, ai_calls_used_this_month, created_at, last_sign_in_at, last_active_at')
     .eq('plan', 'free')
     .order('streak', { ascending: false })
     .limit(50)
@@ -35,7 +35,7 @@ export async function getChurnRisks(): Promise<GrowthProfile[]> {
   const admin = createAdminClient()
   const { data } = await admin
     .from('profiles')
-    .select('id, username, plan, full_name, streak, last_sign_in_at, ai_calls_used_this_month')
+    .select('id, username, plan, full_name, streak, last_sign_in_at, last_active_at, ai_calls_used_this_month')
     .eq('plan', 'pro')
     .order('last_sign_in_at', { ascending: true })
     .limit(50)
