@@ -1,0 +1,487 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
+export type Profile = {
+  id: string
+  email: string | null
+  full_name: string | null
+  username: string | null
+  plan: string | null
+  stage: string | null
+  streak: number | null
+  points: number | null
+  status: string | null
+  is_admin: boolean | null
+  warnings: number | null
+  country: string | null
+  appeal_status: string | null
+  created_at: string
+  last_sign_in_at: string | null
+  last_active_at: string | null
+  ai_calls_used_this_month: number
+}
+
+export type UserCommunication = {
+  id: string
+  user_id: string
+  type: string
+  subject: string | null
+  body: string | null
+  sent_at: string
+  sent_by: string | null
+}
+
+export type UserWarning = {
+  id: string
+  user_id: string
+  reason: string
+  severity: string
+  issued_by: string | null
+  issued_at: string
+  resolved: boolean | null
+  resolved_at: string | null
+}
+
+export type PointsHistoryEntry = {
+  id: string
+  user_id: string
+  amount: number
+  reason: string | null
+  admin_id: string | null
+  created_at: string
+}
+
+export type Habit = {
+  id: string
+  user_id: string
+  name: string
+  category: string | null
+  created_at: string
+}
+
+export type HabitCompletion = {
+  id: string
+  habit_id: string
+  user_id: string
+  completed_at: string
+}
+
+export type Goal = {
+  id: string
+  user_id: string
+  title: string
+  category: string | null
+  progress: number | null
+  status: string | null
+  gardener_linked: boolean | null
+  created_at: string
+}
+
+export type GardenerSummary = {
+  id: string
+  user_id: string
+  summary: string | null
+  phase: string | null
+  prompt_version: string | null
+  flagged: boolean | null
+  created_at: string
+}
+
+export type MealSuggestion = {
+  id: string
+  user_id: string
+  suggestion: string | null
+  dislikes: string | null
+  swaps: string | null
+  flagged: boolean | null
+  created_at: string
+}
+
+export type GrowthBibleVideo = {
+  id: string
+  topic_id: string | null
+  title: string
+  description: string | null
+  mux_playback_id: string | null
+  mux_asset_id: string | null
+  duration_seconds: number | null
+  thumbnail_url: string | null
+  sort_order: number | null
+  is_free: boolean | null
+  is_published: boolean | null
+  tags: string[] | null
+  created_at: string
+}
+
+export type VideoWatchHistory = {
+  id: string
+  user_id: string | null
+  video_id: string | null
+  topic_id: string | null
+  watched_at: string
+  watch_duration_seconds: number | null
+  completed: boolean | null
+  date: string | null
+}
+
+export type VideoWatchEvent = {
+  id: string
+  user_id: string | null
+  video_id: string | null
+  watch_percentage: number | null
+  watched_at: string
+}
+
+export type Playlist = {
+  id: string
+  name: string
+  video_ids: string[]
+  created_at: string
+}
+
+export type ContentAbTest = {
+  id: string
+  video_id: string | null
+  variant_a_title: string
+  variant_b_title: string
+  variant_a_views: number
+  variant_b_views: number
+  status: string
+  created_at: string
+}
+
+export type NotificationLog = {
+  id: string
+  title: string
+  body: string | null
+  segment: string | null
+  sent_at: string
+  open_count: number | null
+}
+
+export type FeatureFlag = {
+  id: string
+  key: string
+  label: string | null
+  enabled: boolean
+  scope: string | null
+}
+
+export type LoginAttempt = {
+  id: string
+  ip_address: string
+  email: string | null
+  success: boolean
+  attempted_at: string
+}
+
+export type AdminLoginLog = {
+  id: string
+  admin_id: string | null
+  ip_address: string | null
+  user_agent: string | null
+  logged_in_at: string
+  logged_out_at: string | null
+}
+
+export type AdminAuditLog = {
+  id: string
+  admin_id: string
+  action: string
+  target_user_id: string | null
+  metadata: Json | null
+  created_at: string
+}
+
+export type JournalEntry = {
+  id: string
+  user_id: string
+  content: string | null
+  mood_score: number | null
+  flagged: boolean | null
+  created_at: string
+}
+
+export type AppError = {
+  id: string
+  error_type: string | null
+  message: string | null
+  stack: string | null
+  user_id: string | null
+  edge_function: string | null
+  created_at: string
+  resolved: boolean | null
+}
+
+export type EdgeFunctionLog = {
+  id: string
+  function_name: string | null
+  status: string | null
+  duration_ms: number | null
+  error_message: string | null
+  user_id: string | null
+  created_at: string
+}
+
+export type ServiceIncident = {
+  id: string
+  service_name: string | null
+  description: string | null
+  started_at: string
+  resolved_at: string | null
+}
+
+export type SupportTicket = {
+  id: string
+  user_id: string | null
+  subject: string | null
+  description: string | null
+  status: string
+  priority: string
+  assigned_to: string | null
+  created_at: string
+  resolved_at: string | null
+}
+
+export type TicketReply = {
+  id: string
+  ticket_id: string | null
+  sender_id: string | null
+  body: string | null
+  is_admin: boolean
+  created_at: string
+}
+
+export type OnboardingEvent = {
+  id: string
+  user_id: string | null
+  step: string
+  completed: boolean | null
+  skipped: boolean | null
+  time_spent_seconds: number | null
+  created_at: string
+}
+
+export type GoalNote = {
+  id: string
+  goal_id: string | null
+  note: string | null
+  admin_id: string | null
+  created_at: string
+}
+
+export type AdminNote = {
+  id: string
+  user_id: string | null
+  note: string | null
+  admin_id: string | null
+  created_at: string
+}
+
+export type Database = {
+  public: {
+    Tables: {
+      profiles: {
+        Row: Profile
+        Insert: { id: string; email?: string | null; full_name?: string | null; username?: string | null; plan?: string | null; stage?: string | null; streak?: number | null; points?: number | null; status?: string | null; is_admin?: boolean | null; warnings?: number | null; country?: string | null; appeal_status?: string | null; created_at?: string; last_sign_in_at?: string | null; last_active_at?: string | null; ai_calls_used_this_month?: number }
+        Update: Partial<Profile>
+        Relationships: []
+      }
+      habits: {
+        Row: Habit
+        Insert: { id?: string; user_id: string; name: string; category?: string | null; created_at?: string }
+        Update: Partial<Habit>
+        Relationships: []
+      }
+      habit_completions: {
+        Row: HabitCompletion
+        Insert: { id?: string; habit_id: string; user_id: string; completed_at?: string }
+        Update: Partial<HabitCompletion>
+        Relationships: []
+      }
+      goals: {
+        Row: Goal
+        Insert: { id?: string; user_id: string; title: string; category?: string | null; progress?: number | null; status?: string | null; gardener_linked?: boolean | null; created_at?: string }
+        Update: Partial<Goal>
+        Relationships: []
+      }
+      gardener_summaries: {
+        Row: GardenerSummary
+        Insert: { id?: string; user_id: string; summary?: string | null; phase?: string | null; prompt_version?: string | null; flagged?: boolean | null; created_at?: string }
+        Update: Partial<GardenerSummary>
+        Relationships: []
+      }
+      meal_suggestions: {
+        Row: MealSuggestion
+        Insert: { id?: string; user_id: string; suggestion?: string | null; dislikes?: string | null; swaps?: string | null; flagged?: boolean | null; created_at?: string }
+        Update: Partial<MealSuggestion>
+        Relationships: []
+      }
+      growth_bible_videos: {
+        Row: GrowthBibleVideo
+        Insert: { id?: string; topic_id?: string | null; title: string; description?: string | null; mux_playback_id?: string | null; mux_asset_id?: string | null; duration_seconds?: number | null; thumbnail_url?: string | null; sort_order?: number | null; is_free?: boolean | null; is_published?: boolean | null; tags?: string[] | null; created_at?: string }
+        Update: Partial<GrowthBibleVideo>
+        Relationships: []
+      }
+      video_watch_history: {
+        Row: VideoWatchHistory
+        Insert: { id?: string; user_id?: string | null; video_id?: string | null; topic_id?: string | null; watched_at?: string; watch_duration_seconds?: number | null; completed?: boolean | null; date?: string | null }
+        Update: Partial<VideoWatchHistory>
+        Relationships: []
+      }
+      video_watch_events: {
+        Row: VideoWatchEvent
+        Insert: { id?: string; user_id?: string | null; video_id?: string | null; watch_percentage?: number | null; watched_at?: string }
+        Update: Partial<VideoWatchEvent>
+        Relationships: []
+      }
+      playlists: {
+        Row: Playlist
+        Insert: { id?: string; name: string; video_ids?: string[]; created_at?: string }
+        Update: Partial<Playlist>
+        Relationships: []
+      }
+      content_ab_tests: {
+        Row: ContentAbTest
+        Insert: { id?: string; video_id?: string | null; variant_a_title: string; variant_b_title: string; variant_a_views?: number; variant_b_views?: number; status?: string; created_at?: string }
+        Update: Partial<ContentAbTest>
+        Relationships: []
+      }
+      notifications_log: {
+        Row: NotificationLog
+        Insert: { id?: string; title: string; body?: string | null; segment?: string | null; sent_at?: string; open_count?: number | null }
+        Update: Partial<NotificationLog>
+        Relationships: []
+      }
+      feature_flags: {
+        Row: FeatureFlag
+        Insert: { id?: string; key: string; label?: string | null; enabled?: boolean; scope?: string | null }
+        Update: Partial<FeatureFlag>
+        Relationships: []
+      }
+      login_attempts: {
+        Row: LoginAttempt
+        Insert: { id?: string; ip_address: string; email?: string | null; success?: boolean; attempted_at?: string }
+        Update: Partial<LoginAttempt>
+        Relationships: []
+      }
+      admin_login_log: {
+        Row: AdminLoginLog
+        Insert: { id?: string; admin_id?: string | null; ip_address?: string | null; user_agent?: string | null; logged_in_at?: string; logged_out_at?: string | null }
+        Update: Partial<AdminLoginLog>
+        Relationships: []
+      }
+      admin_audit_log: {
+        Row: AdminAuditLog
+        Insert: { id?: string; admin_id: string; action: string; target_user_id?: string | null; metadata?: Json | null; created_at?: string }
+        Update: Partial<AdminAuditLog>
+        Relationships: []
+      }
+      journal_entries: {
+        Row: JournalEntry
+        Insert: { id?: string; user_id: string; content?: string | null; mood_score?: number | null; flagged?: boolean | null; created_at?: string }
+        Update: Partial<JournalEntry>
+        Relationships: []
+      }
+      user_communications: {
+        Row: UserCommunication
+        Insert: { id?: string; user_id: string; type: string; subject?: string | null; body?: string | null; sent_at?: string; sent_by?: string | null }
+        Update: Partial<UserCommunication>
+        Relationships: []
+      }
+      user_warnings: {
+        Row: UserWarning
+        Insert: { id?: string; user_id: string; reason: string; severity: string; issued_by?: string | null; issued_at?: string; resolved?: boolean | null; resolved_at?: string | null }
+        Update: Partial<UserWarning>
+        Relationships: []
+      }
+      points_history: {
+        Row: PointsHistoryEntry
+        Insert: { id?: string; user_id: string; amount: number; reason?: string | null; admin_id?: string | null; created_at?: string }
+        Update: Partial<PointsHistoryEntry>
+        Relationships: []
+      }
+      completions: {
+        Row: { id: string; user_id: string; habit_id: string | null; completed_at: string; points_awarded: number | null; date: string | null }
+        Insert: { id?: string; user_id: string; habit_id?: string | null; completed_at?: string; points_awarded?: number | null; date?: string | null }
+        Update: { user_id?: string; habit_id?: string | null; completed_at?: string }
+        Relationships: []
+      }
+      food_logs: {
+        Row: { id: string; user_id: string; food_name: string | null; calories: number | null; protein: number | null; carbohydrates: number | null; fat: number | null; date: string | null; created_at: string }
+        Insert: { id?: string; user_id: string; food_name?: string | null; calories?: number | null; protein?: number | null; carbohydrates?: number | null; fat?: number | null; date?: string | null; created_at?: string }
+        Update: Partial<{ user_id: string; food_name: string | null; calories: number | null; protein: number | null; carbohydrates: number | null; fat: number | null; date: string | null }>
+        Relationships: []
+      }
+      water_logs: {
+        Row: { id: string; user_id: string; ml: number | null; goal_ml: number | null; glasses: number | null; date: string | null; created_at: string }
+        Insert: { id?: string; user_id: string; ml?: number | null; goal_ml?: number | null; glasses?: number | null; date?: string | null }
+        Update: Partial<{ ml: number | null; goal_ml: number | null }>
+        Relationships: []
+      }
+      body_logs: {
+        Row: { id: string; user_id: string; weight: number | null; weight_unit: string | null; energy_level: number | null; mood: number | null; created_at: string; date: string | null }
+        Insert: { id?: string; user_id: string; weight?: number | null; weight_unit?: string | null; created_at?: string }
+        Update: Partial<{ weight: number | null; weight_unit: string | null }>
+        Relationships: []
+      }
+      gardener_profiles: {
+        Row: { id: string; user_id: string; phase: string | null; last_tone: string | null; days_since_signup: number | null; updated_at: string }
+        Insert: { id?: string; user_id: string; phase?: string | null; last_tone?: string | null }
+        Update: { phase?: string | null; last_tone?: string | null }
+        Relationships: []
+      }
+      app_errors: {
+        Row: AppError
+        Insert: { id?: string; error_type?: string | null; message?: string | null; stack?: string | null; user_id?: string | null; edge_function?: string | null; created_at?: string; resolved?: boolean | null }
+        Update: { resolved?: boolean | null }
+        Relationships: []
+      }
+      edge_function_logs: {
+        Row: EdgeFunctionLog
+        Insert: { id?: string; function_name?: string | null; status?: string | null; duration_ms?: number | null; error_message?: string | null; user_id?: string | null; created_at?: string }
+        Update: Partial<EdgeFunctionLog>
+        Relationships: []
+      }
+      service_incidents: {
+        Row: ServiceIncident
+        Insert: { id?: string; service_name?: string | null; description?: string | null; started_at?: string; resolved_at?: string | null }
+        Update: { resolved_at?: string | null }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: SupportTicket
+        Insert: { id?: string; user_id?: string | null; subject?: string | null; description?: string | null; status?: string; priority?: string; assigned_to?: string | null; created_at?: string; resolved_at?: string | null }
+        Update: { status?: string; priority?: string; assigned_to?: string | null; resolved_at?: string | null }
+        Relationships: []
+      }
+      ticket_replies: {
+        Row: TicketReply
+        Insert: { id?: string; ticket_id?: string | null; sender_id?: string | null; body?: string | null; is_admin?: boolean; created_at?: string }
+        Update: Partial<TicketReply>
+        Relationships: []
+      }
+      onboarding_events: {
+        Row: OnboardingEvent
+        Insert: { id?: string; user_id?: string | null; step: string; completed?: boolean | null; skipped?: boolean | null; time_spent_seconds?: number | null; created_at?: string }
+        Update: Partial<OnboardingEvent>
+        Relationships: []
+      }
+      goal_notes: {
+        Row: GoalNote
+        Insert: { id?: string; goal_id?: string | null; note?: string | null; admin_id?: string | null; created_at?: string }
+        Update: Partial<GoalNote>
+        Relationships: []
+      }
+      admin_notes: {
+        Row: AdminNote
+        Insert: { id?: string; user_id?: string | null; note?: string | null; admin_id?: string | null; created_at?: string }
+        Update: Partial<AdminNote>
+        Relationships: []
+      }
+    }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
+  }
+}
