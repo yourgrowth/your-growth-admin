@@ -557,7 +557,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                       <ul className="flex flex-col gap-2">
                         {nutrition.mealSuggestions.map(m => (
                           <li key={m.id} className="text-xs flex items-start justify-between gap-2">
-                            <p className="truncate flex-1" style={{ color: '#e6edf3' }}>{m.suggestion ?? '—'}</p>
+                            <p className="truncate flex-1" style={{ color: '#e6edf3' }}>{m.meal_name ?? '—'}</p>
                             <div className="flex items-center gap-2 shrink-0">
                               {m.flagged && <Badge color="#f85149">Flagged</Badge>}
                               <span style={{ color: '#7d8fa3' }}>{new Date(m.created_at).toLocaleDateString()}</span>

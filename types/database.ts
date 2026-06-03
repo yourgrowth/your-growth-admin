@@ -83,6 +83,7 @@ export type GardenerSummary = {
   phase: string | null
   prompt_version: string | null
   flagged: boolean | null
+  quality_score: number | null
   created_at: string
 }
 
@@ -274,6 +275,14 @@ export type AdminNote = {
   user_id: string | null
   note: string | null
   admin_id: string | null
+  created_at: string
+}
+
+export type PromptVersion = {
+  id: string
+  version_label: string
+  prompt_text: string
+  created_by: string | null
   created_at: string
 }
 
@@ -476,6 +485,18 @@ export type Database = {
         Row: AdminNote
         Insert: { id?: string; user_id?: string | null; note?: string | null; admin_id?: string | null; created_at?: string }
         Update: Partial<AdminNote>
+        Relationships: []
+      }
+      prompt_versions: {
+        Row: PromptVersion
+        Insert: { id?: string; version_label: string; prompt_text: string; created_by?: string | null; created_at?: string }
+        Update: Partial<PromptVersion>
+        Relationships: []
+      }
+      prompt_config: {
+        Row: { id: number; active_version: string | null; updated_at: string }
+        Insert: { id?: number; active_version?: string | null; updated_at?: string }
+        Update: { active_version?: string | null; updated_at?: string }
         Relationships: []
       }
     }

@@ -72,14 +72,14 @@ export async function getUsersAtStep(step: string): Promise<DroppedUser[]> {
   // Use admin client — anon key RLS blocks cross-user profile reads
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, display_name, email, subscription_status, created_at')
+    .select('id, full_name, username, email, plan, created_at')
     .in('id', droppedIds)
 
   return (profiles ?? []).map(p => ({
     id: p.id,
-    display_name: p.display_name,
+    display_name: p.full_name ?? p.username,
     email: p.email,
-    subscription_status: p.subscription_status,
+    subscription_status: p.plan,
     created_at: p.created_at,
   }))
 }

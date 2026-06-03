@@ -150,11 +150,11 @@ export default function OnboardingPage() {
                   style={{ background: '#080b0f', border: '1px solid #1a2332' }}
                 >
                   <div>
-                    <p className="text-xs font-medium" style={{ color: '#e6edf3' }}>{u.full_name ?? '—'}</p>
+                    <p className="text-xs font-medium" style={{ color: '#e6edf3' }}>{u.display_name ?? '—'}</p>
                     <p className="text-xs" style={{ color: '#7d8fa3' }}>{u.email ?? ''} · {new Date(u.created_at).toLocaleDateString()}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {u.plan && <Badge color="#bc8cff">{u.plan}</Badge>}
+                    {u.subscription_status && <Badge color="#bc8cff">{u.subscription_status}</Badge>}
                     <button
                       onClick={() => startTransition(async () => { await sendReengagement(u.id) })}
                       disabled={isPending}

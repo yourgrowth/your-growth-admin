@@ -74,7 +74,7 @@ export async function grantPro(userId: string) {
   if (!adminId) return
   const admin = createAdminClient()
   // Write to subscription_status — the sync trigger keeps `plan` in sync
-  await admin.from('profiles').update({ subscription_status: 'pro' }).eq('id', userId)
+  await admin.from('profiles').update({ plan: 'pro' }).eq('id', userId)
   await auditLog(adminId, 'grant_pro', userId)
   revalidatePath('/users')
 }
@@ -83,7 +83,7 @@ export async function revokePro(userId: string) {
   const adminId = await getAdminId()
   if (!adminId) return
   const admin = createAdminClient()
-  await admin.from('profiles').update({ subscription_status: 'free' }).eq('id', userId)
+  await admin.from('profiles').update({ plan: 'free' }).eq('id', userId)
   await auditLog(adminId, 'revoke_pro', userId)
   revalidatePath('/users')
 }
@@ -173,7 +173,7 @@ export async function getUserTimeline(userId: string): Promise<TimelineEvent[]> 
 
     const firstCompletion = new Map<string, string>()
     for (const c of completions ?? []) {
-      if (!firstCompletion.has(c.habit_id)) firstCompletion.set(c.habit_id, c.completed_at)
+      if (c.habit_id && !firstCompletion.has(c.habit_id)) firstCompletion.set(c.habit_id, c.completed_at)
     }
 
     for (const h of habitList) {
@@ -213,7 +213,7 @@ export async function bulkGrantPro(userIds: string[]) {
   const adminId = await getAdminId()
   if (!adminId || userIds.length === 0) return
   const admin = createAdminClient()
-  await admin.from('profiles').update({ subscription_status: 'pro' }).in('id', userIds)
+  await admin.from('profiles').update({ plan: 'pro' }).in('id', userIds)
   for (const id of userIds) await auditLog(adminId, 'bulk_grant_pro', id)
   revalidatePath('/users')
 }
@@ -222,7 +222,7 @@ export async function bulkRevokePro(userIds: string[]) {
   const adminId = await getAdminId()
   if (!adminId || userIds.length === 0) return
   const admin = createAdminClient()
-  await admin.from('profiles').update({ subscription_status: 'free' }).in('id', userIds)
+  await admin.from('profiles').update({ plan: 'free' }).in('id', userIds)
   for (const id of userIds) await auditLog(adminId, 'bulk_revoke_pro', id)
   revalidatePath('/users')
 }
@@ -403,12 +403,12 @@ export async function adjustPoints(userId: string, amount: number, reason: strin
 
   const { data: profile } = await admin
     .from('profiles')
-    .select('total_points')
+    .select('points')
     .eq('id', userId)
     .single()
   await admin
     .from('profiles')
-    .update({ total_points: (profile?.total_points ?? 0) + amount })
+    .update({ points: (profile?.points ?? 0) + amount })
     .eq('id', userId)
 
   await admin.from('points_history').insert({
@@ -451,8 +451,8 @@ export async function setStage(userId: string, stage: string) {
     'Seed': 1, 'Sprout': 2, 'Sapling': 3, 'Young Tree': 4,
     'Established': 5, 'Maturing': 6, 'Seasoned': 7, 'Ancient': 8,
   }
-  const bonsaiStage = stageMap[stage] ?? 1
-  await admin.from('profiles').update({ stage, bonsai_stage: bonsaiStage }).eq('id', userId)
+  void stageMap  // stageMap retained for future use
+  await admin.from('profiles').update({ stage }).eq('id', userId)
   await auditLog(adminId, `set_stage:${stage}`, userId)
   revalidatePath('/users')
 }
@@ -512,7 +512,7 @@ export async function anonymiseAccount(userId: string) {
   const adminId = await getAdminId()
   if (!adminId) return
   const adminClient = createAdminClient()
-  await adminClient.from('profiles').update({ display_name: 'Anonymous User', email: `anon_${userId.slice(0, 8)}@deleted.local` }).eq('id', userId)
+  await adminClient.from('profiles').update({ full_name: 'Anonymous User', email: `anon_${userId.slice(0, 8)}@deleted.local` }).eq('id', userId)
   const anon = `anon_${userId.slice(0, 8)}@deleted.local`
   await adminClient.auth.admin.updateUserById(userId, { email: anon })
   await auditLog(adminId, 'anonymise_account', userId)
@@ -536,8 +536,8 @@ export async function getAdminNotes(userId: string): Promise<(AdminNote & { admi
 
   if (!data?.length) return []
   const adminIds = [...new Set(data.map(n => n.admin_id).filter(Boolean))] as string[]
-  const { data: admins } = await admin.from('profiles').select('id, display_name').in('id', adminIds)
-  const nameMap = new Map(admins?.map(a => [a.id, a.display_name]) ?? [])
+  const { data: admins } = await admin.from('profiles').select('id, full_name, username').in('id', adminIds)
+  const nameMap = new Map(admins?.map(a => [a.id, a.full_name ?? a.username]) ?? [])
 
   return data.map(n => ({ ...(n as AdminNote), admin_name: n.admin_id ? (nameMap.get(n.admin_id) ?? null) : null }))
 }
@@ -623,7 +623,7 @@ export async function getUserNutritionData(userId: string): Promise<NutritionDat
   ] = await Promise.all([
     admin.from('food_logs').select('calories, protein, carbohydrates, fat, food_name, date').eq('user_id', userId).gte('date', sevenDaysAgo.toISOString().slice(0, 10)),
     admin.from('water_logs').select('ml, goal_ml, date').eq('user_id', userId).gte('date', thirtyDaysAgo.toISOString().slice(0, 10)),
-    admin.from('meal_suggestions').select('id, meal_name, flagged, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
+    admin.from('meal_suggestions').select('id, suggestion, flagged, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
     admin.from('body_logs').select('weight, weight_unit, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
   ])
 
@@ -651,7 +651,7 @@ export async function getUserNutritionData(userId: string): Promise<NutritionDat
     macros: { calories, protein, carbs, fat },
     waterHitRate,
     topFoods,
-    mealSuggestions: (mealSuggestions ?? []) as NutritionData['mealSuggestions'],
+    mealSuggestions: (mealSuggestions ?? []).map(m => ({ id: m.id, meal_name: m.suggestion ?? null, flagged: m.flagged ?? null, created_at: m.created_at })),
     bodyLogs: (bodyLogs ?? []).map(b => ({ weight: b.weight as number | null, weight_unit: (b as { weight_unit?: string | null }).weight_unit ?? null, created_at: b.created_at })),
   }
 }

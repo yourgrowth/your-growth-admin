@@ -73,18 +73,18 @@ export async function getTickets(): Promise<TicketWithUser[]> {
   // Use admin client to read other users' profiles
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, display_name, email, subscription_status, stage')
+    .select('id, full_name, username, email, plan, stage')
     .in('id', userIds)
 
   const profileMap = new Map(profiles?.map(p => [p.id, p]) ?? [])
 
   return tickets.map(t => ({
     ...(t as SupportTicket),
-    user_name: t.user_id ? profileMap.get(t.user_id)?.display_name ?? null : null,
+    user_name: t.user_id ? (profileMap.get(t.user_id)?.full_name ?? profileMap.get(t.user_id)?.username ?? null) : null,
     user_email: t.user_id ? profileMap.get(t.user_id)?.email ?? null : null,
-    user_plan: t.user_id ? profileMap.get(t.user_id)?.subscription_status ?? null : null,
+    user_plan: t.user_id ? profileMap.get(t.user_id)?.plan ?? null : null,
     user_stage: t.user_id ? profileMap.get(t.user_id)?.stage ?? null : null,
-    assigned_name: t.assigned_to ? profileMap.get(t.assigned_to)?.display_name ?? null : null,
+    assigned_name: t.assigned_to ? (profileMap.get(t.assigned_to)?.full_name ?? profileMap.get(t.assigned_to)?.username ?? null) : null,
   }))
 }
 
@@ -101,15 +101,15 @@ export async function getTicketReplies(ticketId: string): Promise<ReplyWithSende
   if (!replies?.length) return []
 
   const senderIds = [...new Set(replies.map(r => r.sender_id).filter(Boolean))] as string[]
-  const { data: profiles } = await admin.from('profiles').select('id, display_name').in('id', senderIds)
-  const nameMap = new Map(profiles?.map(p => [p.id, p.display_name]) ?? [])
+  const { data: profiles } = await admin.from('profiles').select('id, full_name, username').in('id', senderIds)
+  const nameMap = new Map(profiles?.map(p => [p.id, p.full_name ?? p.username]) ?? [])
 
   return replies.map(r => ({ ...(r as TicketReply), sender_name: r.sender_id ? (nameMap.get(r.sender_id) ?? null) : null }))
 }
 
 export async function getAdminUsers() {
   const admin = createAdminClient()
-  const { data } = await admin.from('profiles').select('id, display_name').eq('is_admin', true)
+  const { data } = await admin.from('profiles').select('id, full_name, username').eq('is_admin', true)
   return data ?? []
 }
 
