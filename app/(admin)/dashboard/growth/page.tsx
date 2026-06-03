@@ -115,8 +115,8 @@ export default async function GrowthPage() {
   // Churn candidates with computed scores
   const now = Date.now()
   const churnScored = churnRisks.map((u) => {
-    const lastActiveDays = u.last_active_at
-      ? Math.floor((now - new Date(u.last_active_at).getTime()) / (1000 * 60 * 60 * 24))
+    const lastActiveDays = u.last_sign_in_at
+      ? Math.floor((now - new Date(u.last_sign_in_at).getTime()) / (1000 * 60 * 60 * 24))
       : 0
     const streakBroken = u.streak === 0
     const churnScore = Math.min(100, Math.round(lastActiveDays * 0.5 + (streakBroken ? 30 : 0)))
