@@ -9,6 +9,7 @@ export interface GrowthProfile {
   ai_calls_used_this_month: number | null
   created_at: string
   last_sign_in_at: string | null
+  last_active_at: string | null
 }
 
 export interface RevenueSignals {
