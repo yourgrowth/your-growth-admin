@@ -28,6 +28,7 @@ export type Profile = {
   country_code: string | null
   appeal_status: string | null
   created_at: string
+  updated_at: string | null
   last_sign_in_at: string | null
   last_active_at: string | null
   ai_calls_used_this_month: number | null
@@ -525,21 +526,21 @@ export type Database = {
         Relationships: []
       }
       gardener_chat_messages: {
-        Row: { id: string; session_id: string; user_id: string; role: string; content: string; created_at: string; safety_flagged: boolean | null; flagged_reason: string | null }
-        Insert: { id?: string; session_id: string; user_id: string; role: string; content: string; created_at?: string; safety_flagged?: boolean | null; flagged_reason?: string | null }
-        Update: Partial<{ safety_flagged: boolean | null; flagged_reason: string | null }>
+        Row: { id: string; session_id: string; user_id: string; role: string; content: string; created_at: string; safety_flagged: boolean | null; flagged_reason: string | null; response_ms: number | null }
+        Insert: { id?: string; session_id: string; user_id: string; role: string; content: string; created_at?: string; safety_flagged?: boolean | null; flagged_reason?: string | null; response_ms?: number | null }
+        Update: Partial<{ safety_flagged: boolean | null; flagged_reason: string | null; response_ms: number | null }>
         Relationships: []
       }
       safety_flag_log: {
-        Row: { id: string; user_id: string | null; session_id: string | null; layer: string | null; action: string | null; trigger_text: string | null; original_response: string | null; source: string | null; action_taken: string | null; reviewed_at: string | null; reviewed_by: string | null; created_at: string }
-        Insert: { id?: string; user_id?: string | null; session_id?: string | null; layer?: string | null; action?: string | null; trigger_text?: string | null; original_response?: string | null; source?: string | null; action_taken?: string | null; reviewed_at?: string | null; reviewed_by?: string | null; created_at?: string }
+        Row: { id: string; user_id: string | null; session_id: string | null; layer: string | null; layer_caught: string | null; action: string | null; trigger_text: string | null; trigger_type: string | null; input_snippet: string | null; response_given: string | null; original_response: string | null; source: string | null; action_taken: string | null; reviewed_at: string | null; reviewed_by: string | null; created_at: string }
+        Insert: { id?: string; user_id?: string | null; session_id?: string | null; layer?: string | null; layer_caught?: string | null; action?: string | null; trigger_text?: string | null; trigger_type?: string | null; input_snippet?: string | null; response_given?: string | null; original_response?: string | null; source?: string | null; action_taken?: string | null; reviewed_at?: string | null; reviewed_by?: string | null; created_at?: string }
         Update: Partial<{ reviewed_at: string | null; reviewed_by: string | null; action_taken: string | null }>
         Relationships: []
       }
       gardener_context_snapshots: {
-        Row: { id: string; user_id: string; snapshot_json: Json; created_at: string; expires_at: string | null }
-        Insert: { id?: string; user_id: string; snapshot_json: Json; created_at?: string; expires_at?: string | null }
-        Update: Partial<{ snapshot_json: Json; expires_at: string | null }>
+        Row: { id: string; user_id: string; snapshot_json: Json; created_at: string; generated_at: string | null; expires_at: string | null; data_confidence_score: number | null }
+        Insert: { id?: string; user_id: string; snapshot_json: Json; created_at?: string; generated_at?: string | null; expires_at?: string | null; data_confidence_score?: number | null }
+        Update: Partial<{ snapshot_json: Json; expires_at: string | null; data_confidence_score: number | null }>
         Relationships: []
       }
       daily_summaries: {
@@ -549,9 +550,46 @@ export type Database = {
         Relationships: []
       }
       user_models: {
-        Row: { id: string; user_id: string; voice_register: string | null; key_action_today: string | null; updated_at: string }
+        Row: { id: string; user_id: string; voice_register: string | null; key_action_today: string | null; currently_returning: boolean | null; data_confidence_score: number | null; active_day_rate: number | null; total_active_days: number | null; updated_at: string }
         Insert: { id?: string; user_id: string; updated_at?: string }
-        Update: Partial<{ voice_register: string | null; key_action_today: string | null; updated_at: string }>
+        Update: Partial<{ voice_register: string | null; key_action_today: string | null; currently_returning: boolean | null; data_confidence_score: number | null; active_day_rate: number | null; total_active_days: number | null; updated_at: string }>
+        Relationships: []
+      }
+    }
+      page_views: {
+        Row: { id: string; user_id: string | null; page_name: string | null; viewed_at: string; session_id: string | null }
+        Insert: { id?: string; user_id?: string | null; page_name?: string | null; viewed_at?: string; session_id?: string | null }
+        Update: Partial<{ page_name: string | null }>
+        Relationships: []
+      }
+      sleep_logs: {
+        Row: { id: string; user_id: string; date: string | null; bedtime: string | null; wake_time: string | null; duration_hours: number | null; quality: number | null; notes: string | null; created_at: string }
+        Insert: { id?: string; user_id: string; date?: string | null; bedtime?: string | null; wake_time?: string | null; duration_hours?: number | null; quality?: number | null; notes?: string | null; created_at?: string }
+        Update: Partial<{ bedtime: string | null; wake_time: string | null; duration_hours: number | null; quality: number | null; notes: string | null }>
+        Relationships: []
+      }
+      food_quality_logs: {
+        Row: { id: string; user_id: string; date: string | null; quality_score: number | null; whole_food_count: number | null; processed_food_count: number | null; high_additive_count: number | null; gardener_summary: string | null; created_at: string }
+        Insert: { id?: string; user_id: string; date?: string | null; quality_score?: number | null; whole_food_count?: number | null; processed_food_count?: number | null; high_additive_count?: number | null; gardener_summary?: string | null; created_at?: string }
+        Update: Partial<{ quality_score: number | null; gardener_summary: string | null }>
+        Relationships: []
+      }
+      nutrition_cache: {
+        Row: { id: string; barcode: string | null; search_key: string | null; nutriments: Json | null; source: string | null; completeness: number | null; created_at: string }
+        Insert: { id?: string; barcode?: string | null; search_key?: string | null; nutriments?: Json | null; source?: string | null; completeness?: number | null; created_at?: string }
+        Update: Partial<{ nutriments: Json | null; completeness: number | null }>
+        Relationships: []
+      }
+      product_analyses: {
+        Row: { id: string; barcode: string | null; additives: Json | null; overall_risk: string | null; summary: string | null; created_at: string }
+        Insert: { id?: string; barcode?: string | null; additives?: Json | null; overall_risk?: string | null; summary?: string | null; created_at?: string }
+        Update: Partial<{ additives: Json | null; overall_risk: string | null; summary: string | null }>
+        Relationships: []
+      }
+      user_feature_flags: {
+        Row: { id: string; user_id: string; flag_key: string; enabled: boolean; created_at: string }
+        Insert: { id?: string; user_id: string; flag_key: string; enabled?: boolean; created_at?: string }
+        Update: Partial<{ enabled: boolean }>
         Relationships: []
       }
     }
