@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import PageHeader from '@/components/ui/PageHeader'
 import StatCard from '@/components/ui/StatCard'
@@ -47,7 +47,7 @@ export default async function SubscriptionsPage() {
   type LapsedUser = { id: string; full_name: string | null; plan: string | null; last_sign_in_at: string | null }
   const lapsedUsers = ((lapsedResult as { data: LapsedUser[] | null }).data ?? [])
 
-  // ── Revenue Forecasting ──────────────────────────────────────────────────
+  // â”€â”€ Revenue Forecasting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const thisMonth = new Date().toISOString().slice(0, 7)
   const lastMonthDate = new Date()
   lastMonthDate.setUTCMonth(lastMonthDate.getUTCMonth() - 1)
@@ -69,7 +69,7 @@ export default async function SubscriptionsPage() {
   const growthPct = (growthRate * 100).toFixed(1)
   const growthSign = growthRate >= 0 ? '+' : ''
 
-  // ── Churn Risk ───────────────────────────────────────────────────────────
+  // â”€â”€ Churn Risk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const activeHabitUsers = new Set((recentCompletions ?? []).map((c) => c.user_id))
 
   const churnUsers: ChurnUser[] = proUsers
@@ -90,7 +90,7 @@ export default async function SubscriptionsPage() {
     })
     .sort((a, b) => b.riskScore - a.riskScore)
 
-  // ── LTV Calculator ───────────────────────────────────────────────────────
+  // â”€â”€ LTV Calculator â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const now = Date.now()
 
   const proWithMonths = proUsers.map((user) => ({
@@ -122,7 +122,7 @@ export default async function SubscriptionsPage() {
     <div>
       <PageHeader title="Subscriptions" subtitle="Plan and revenue overview" />
 
-      {/* ── Overview Stat Cards ────────────────────────────────────────── */}
+      {/* â”€â”€ Overview Stat Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label="Total Pro Users" value={proCount} color="#bc8cff" />
         <StatCard label="Free Users" value={freeCount} color="#7d8fa3" />
@@ -130,8 +130,8 @@ export default async function SubscriptionsPage() {
         <StatCard label="MRR" value={fmt(currentMRR)} color="#3fb950" />
       </div>
 
-      {/* ── Subscription Breakdown ────────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      {/* â”€â”€ Subscription Breakdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
           <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: '#7d8fa3' }}>Plan Split</p>
           <div className="flex flex-col gap-2">
@@ -156,7 +156,7 @@ export default async function SubscriptionsPage() {
         </div>
         <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
           <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#7d8fa3' }}>Trial Conversion</p>
-          <p className="text-3xl font-bold" style={{ color: '#58a6ff' }}>—</p>
+          <p className="text-3xl font-bold" style={{ color: '#58a6ff' }}>â€”</p>
           <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>Via RevenueCat</p>
         </div>
         <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
@@ -169,7 +169,7 @@ export default async function SubscriptionsPage() {
       {lapsedUsers.length > 0 && (
         <div className="rounded-lg overflow-hidden mb-8" style={{ border: '1px solid #f85149' }}>
           <div className="px-4 py-3" style={{ background: '#0d1117', borderBottom: '1px solid #f85149' }}>
-            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#f85149' }}>At-Risk Pro Users — No Login in 60 Days</p>
+            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#f85149' }}>At-Risk Pro Users â€” No Login in 60 Days</p>
           </div>
           <table className="w-full text-sm">
             <thead>
@@ -182,7 +182,7 @@ export default async function SubscriptionsPage() {
             <tbody>
               {lapsedUsers.map((u, i) => (
                 <tr key={u.id} style={{ background: '#080b0f', borderBottom: i < lapsedUsers.length - 1 ? '1px solid #1a2332' : undefined }}>
-                  <td className="px-4 py-2.5 font-medium" style={{ color: '#e6edf3' }}>{u.full_name ?? '—'}</td>
+                  <td className="px-4 py-2.5 font-medium" style={{ color: '#e6edf3' }}>{u.full_name ?? 'â€”'}</td>
                   <td className="px-4 py-2.5"><span className="text-xs px-2 py-0.5 rounded" style={{ background: '#bc8cff22', color: '#bc8cff', border: '1px solid #bc8cff' }}>Pro</span></td>
                   <td className="px-4 py-2.5 text-xs whitespace-nowrap" style={{ color: '#f85149' }}>
                     {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString() : 'Never'}
@@ -194,7 +194,7 @@ export default async function SubscriptionsPage() {
         </div>
       )}
 
-      {/* ── Pro Subscribers Table ─────────────────────────────────────── */}
+      {/* â”€â”€ Pro Subscribers Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div
         className="rounded-lg overflow-x-auto mb-6"
         style={{ border: '1px solid #1a2332' }}
@@ -234,7 +234,7 @@ export default async function SubscriptionsPage() {
                 }}
               >
                 <td className="px-4 py-3">
-                  <p style={{ color: '#e6edf3' }}>{user.full_name ?? '—'}</p>
+                  <p style={{ color: '#e6edf3' }}>{user.full_name ?? 'â€”'}</p>
                   {user.email && (
                     <p className="text-xs" style={{ color: '#7d8fa3' }}>
                       {user.email}
@@ -242,7 +242,7 @@ export default async function SubscriptionsPage() {
                   )}
                 </td>
                 <td className="px-4 py-3" style={{ color: '#e6edf3' }}>
-                  {user.stage ?? '—'}
+                  {user.stage ?? 'â€”'}
                 </td>
                 <td className="px-4 py-3 font-medium" style={{ color: '#3fb950' }}>
                   {user.streak ?? 0}
@@ -259,7 +259,7 @@ export default async function SubscriptionsPage() {
         </table>
       </div>
 
-      {/* ── Free / Churn Cards ────────────────────────────────────────── */}
+      {/* â”€â”€ Free / Churn Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
         <div
           className="rounded-lg p-5"
@@ -301,7 +301,7 @@ export default async function SubscriptionsPage() {
         </div>
       </div>
 
-      {/* ── Revenue Forecasting ──────────────────────────────────────── */}
+      {/* â”€â”€ Revenue Forecasting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="mb-10">
         <h2
           className="text-xs font-semibold uppercase tracking-wider mb-4"
@@ -338,7 +338,7 @@ export default async function SubscriptionsPage() {
         </p>
       </section>
 
-      {/* ── Churn Risk ───────────────────────────────────────────────── */}
+      {/* â”€â”€ Churn Risk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="mb-10">
         <h2
           className="text-xs font-semibold uppercase tracking-wider mb-2"
@@ -353,7 +353,7 @@ export default async function SubscriptionsPage() {
         <ChurnClient users={churnUsers} />
       </section>
 
-      {/* ── LTV Calculator ───────────────────────────────────────────── */}
+      {/* â”€â”€ LTV Calculator â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section>
         <h2
           className="text-xs font-semibold uppercase tracking-wider mb-4"
@@ -365,7 +365,7 @@ export default async function SubscriptionsPage() {
           <StatCard
             label="Average LTV"
             value={fmt(avgLTV)}
-            sub={`${avgMonths.toFixed(1)} avg months × $7.99`}
+            sub={`${avgMonths.toFixed(1)} avg months Ã— $7.99`}
             color="#3fb950"
           />
         </div>
@@ -423,3 +423,4 @@ export default async function SubscriptionsPage() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import PageHeader from '@/components/ui/PageHeader'
@@ -93,7 +93,7 @@ function StarRating({ score, summaryId }: { score: number | null; summaryId: str
             lineHeight: 1,
           }}
         >
-          ★
+          â˜…
         </button>
       ))}
       {hasError && (
@@ -521,7 +521,7 @@ function CompareTab({
   )
 }
 
-// ─── Context Snapshot Tab ───────────────────────────────────────────────────
+// â”€â”€â”€ Context Snapshot Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnapshot[]; onRebuild: (userId: string) => void }) {
   const [drawerSnapshot, setDrawerSnapshot] = useState<ContextSnapshot | null>(null)
@@ -553,7 +553,7 @@ function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnaps
           return (
             <div key={key} className="flex items-center gap-2 text-xs">
               <span style={{ color: days > 0 ? '#3fb950' : '#1a2332' }}>
-                {days > 0 ? '✓' : '○'}
+                {days > 0 ? 'âœ“' : 'â—‹'}
               </span>
               <span style={{ color: days > 0 ? '#e6edf3' : '#7d8fa3' }}>
                 {label} {days > 0 ? `(${days}d)` : ''}
@@ -592,13 +592,13 @@ function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnaps
                     style={{ background: '#080b0f', borderBottom: i < snapshots.length - 1 ? '1px solid #1a2332' : undefined, cursor: 'pointer' }}
                     onClick={() => setDrawerSnapshot(s)}
                   >
-                    <td className="px-4 py-2.5 font-medium" style={{ color: '#e6edf3' }}>{String(s.user_name ?? '—')}</td>
-                    <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{String(s.user_email ?? '—')}</td>
+                    <td className="px-4 py-2.5 font-medium" style={{ color: '#e6edf3' }}>{String(s.user_name ?? 'â€”')}</td>
+                    <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{String(s.user_email ?? 'â€”')}</td>
                     <td className="px-4 py-2.5 text-xs whitespace-nowrap" style={{ color: '#7d8fa3' }}>
-                      {s.generated_at ? new Date(String(s.generated_at)).toLocaleString() : '—'}
+                      {s.generated_at ? new Date(String(s.generated_at)).toLocaleString() : 'â€”'}
                     </td>
                     <td className="px-4 py-2.5 text-xs whitespace-nowrap" style={{ color: '#7d8fa3' }}>
-                      {s.expires_at ? new Date(String(s.expires_at)).toLocaleDateString() : '—'}
+                      {s.expires_at ? new Date(String(s.expires_at)).toLocaleDateString() : 'â€”'}
                     </td>
                     <td className="px-4 py-2.5 font-medium" style={{ color: activePct < 30 ? '#f85149' : activePct < 60 ? '#d29922' : '#3fb950' }}>
                       {activePct}%
@@ -606,11 +606,11 @@ function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnaps
                     <td className="px-4 py-2.5">
                       <span className="text-xs font-medium" style={{ color: lowConfidence ? '#f85149' : confidence < 60 ? '#d29922' : '#3fb950' }}>
                         {confidence}
-                        {lowConfidence && ' ⚠'}
+                        {lowConfidence && ' âš '}
                       </span>
                     </td>
                     <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>
-                      {String(s.total_active_days ?? '—')}
+                      {String(s.total_active_days ?? 'â€”')}
                     </td>
                     <td className="px-4 py-2.5" onClick={(e) => e.stopPropagation()}>
                       <button
@@ -619,7 +619,7 @@ function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnaps
                         className="px-2.5 py-1 rounded text-xs disabled:opacity-50"
                         style={{ background: 'transparent', border: '1px solid #1a2332', color: '#7d8fa3' }}
                       >
-                        {rebuildingId === String(s.user_id) ? 'Rebuilding…' : 'Rebuild'}
+                        {rebuildingId === String(s.user_id) ? 'Rebuildingâ€¦' : 'Rebuild'}
                       </button>
                     </td>
                   </tr>
@@ -642,9 +642,9 @@ function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnaps
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #1a2332' }}>
               <div>
                 <p className="font-medium" style={{ color: '#e6edf3' }}>{String(drawerSnapshot.user_name ?? 'Unknown')}</p>
-                <p className="text-xs mt-0.5" style={{ color: '#7d8fa3' }}>{String(drawerSnapshot.user_email ?? '—')}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#7d8fa3' }}>{String(drawerSnapshot.user_email ?? 'â€”')}</p>
               </div>
-              <button onClick={() => setDrawerSnapshot(null)} style={{ color: '#7d8fa3', background: 'none', border: 'none', fontSize: 20, cursor: 'pointer' }}>×</button>
+              <button onClick={() => setDrawerSnapshot(null)} style={{ color: '#7d8fa3', background: 'none', border: 'none', fontSize: 20, cursor: 'pointer' }}>Ã—</button>
             </div>
 
             <div className="flex flex-col gap-5 p-5">
@@ -672,7 +672,7 @@ function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnaps
                   </span>
                 </div>
                 <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>
-                  {String(drawerSnapshot.total_active_days ?? 0)} total active days · confidence {String(drawerSnapshot.data_confidence_score ?? 0)}
+                  {String(drawerSnapshot.total_active_days ?? 0)} total active days Â· confidence {String(drawerSnapshot.data_confidence_score ?? 0)}
                 </p>
               </div>
 
@@ -689,7 +689,7 @@ function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnaps
                     <div className="flex flex-col gap-2">
                       {top5.map((c, i) => (
                         <div key={i} className="flex items-center justify-between text-xs">
-                          <span style={{ color: '#e6edf3' }}>{String(c.metric_a ?? '?')} × {String(c.metric_b ?? '?')}</span>
+                          <span style={{ color: '#e6edf3' }}>{String(c.metric_a ?? '?')} Ã— {String(c.metric_b ?? '?')}</span>
                           <span style={{ color: '#3fb950' }}>r={Number(c.strength ?? 0).toFixed(2)} ({String(c.data_points ?? '?')}pts)</span>
                         </div>
                       ))}
@@ -711,7 +711,7 @@ function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnaps
                     <div className="flex flex-col gap-2">
                       {top3.map((c, i) => (
                         <div key={i} className="flex items-center justify-between text-xs">
-                          <span style={{ color: '#e6edf3' }}>{String(c.metric_a ?? '?')} × {String(c.metric_b ?? '?')}</span>
+                          <span style={{ color: '#e6edf3' }}>{String(c.metric_a ?? '?')} Ã— {String(c.metric_b ?? '?')}</span>
                           <span style={{ color: '#58a6ff' }}>r={Number(c.strength ?? 0).toFixed(2)}</span>
                         </div>
                       ))}
@@ -744,7 +744,7 @@ function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnaps
                           <div key={label} className="flex items-center justify-between text-xs">
                             <span style={{ color: '#7d8fa3' }}>{label}</span>
                             <span style={{ color: '#e6edf3' }}>
-                              {fmt(allVal)} → {fmt(recentVal)}
+                              {fmt(allVal)} â†’ {fmt(recentVal)}
                               {allVal > 0 && (
                                 <span className="ml-2" style={{ color: delta < -15 ? '#f85149' : delta > 0 ? '#3fb950' : '#7d8fa3' }}>
                                   {delta >= 0 ? '+' : ''}{delta.toFixed(0)}%
@@ -766,7 +766,7 @@ function ContextSnapshotsTab({ snapshots, onRebuild }: { snapshots: ContextSnaps
   )
 }
 
-// ─── All-Time vs Recent Comparison Tab ──────────────────────────────────────
+// â”€â”€â”€ All-Time vs Recent Comparison Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ComparisonTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
   const fields = [
@@ -801,16 +801,16 @@ function ComparisonTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm font-medium" style={{ color: '#e6edf3' }}>{String(s.user_name ?? '—')}</p>
-              <p className="text-xs" style={{ color: '#7d8fa3' }}>{String(s.user_email ?? '—')}</p>
+              <p className="text-sm font-medium" style={{ color: '#e6edf3' }}>{String(s.user_name ?? 'â€”')}</p>
+              <p className="text-xs" style={{ color: '#7d8fa3' }}>{String(s.user_email ?? 'â€”')}</p>
             </div>
             {flags.length > 0 && (
               <span className="text-xs px-2 py-1 rounded" style={{ background: '#f8514922', color: '#f85149', border: '1px solid #f85149' }}>
-                ↓ {flags.length} metric{flags.length > 1 ? 's' : ''} dropped &gt;15%
+                â†“ {flags.length} metric{flags.length > 1 ? 's' : ''} dropped &gt;15%
               </span>
             )}
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {fields.map(({ label, allKey, recentKey, isRate }) => {
               const a = Number(allTime[allKey] ?? 0)
               const r = Number(recent[recentKey] ?? 0)
@@ -822,11 +822,11 @@ function ComparisonTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
                   <p className="text-xs mb-2" style={{ color: '#7d8fa3' }}>{label}</p>
                   <div className="flex items-center gap-2">
                     <span className="text-sm" style={{ color: '#7d8fa3' }}>{fmt(a)}</span>
-                    <span style={{ color: '#7d8fa3' }}>→</span>
+                    <span style={{ color: '#7d8fa3' }}>â†’</span>
                     <span className="text-sm font-medium" style={{ color: dropped ? '#f85149' : '#e6edf3' }}>{fmt(r)}</span>
                     {a > 0 && (
                       <span className="text-xs ml-1" style={{ color: delta < -15 ? '#f85149' : delta > 0 ? '#3fb950' : '#7d8fa3' }}>
-                        {delta >= 0 ? '↑' : '↓'}{Math.abs(delta).toFixed(0)}%
+                        {delta >= 0 ? 'â†‘' : 'â†“'}{Math.abs(delta).toFixed(0)}%
                       </span>
                     )}
                   </div>
@@ -840,7 +840,7 @@ function ComparisonTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
   )
 }
 
-// ─── Re-Engagement Tracker Tab ──────────────────────────────────────────────
+// â”€â”€â”€ Re-Engagement Tracker Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ReEngagementTab({ userModels }: { userModels: UserModel[] }) {
   const returning = userModels.filter((m) => m.currently_returning === true)
@@ -877,20 +877,20 @@ function ReEngagementTab({ userModels }: { userModels: UserModel[] }) {
 
             return (
               <tr key={String(m.user_id ?? i)} style={{ background: '#080b0f', borderBottom: i < returning.length - 1 ? '1px solid #1a2332' : undefined }}>
-                <td className="px-4 py-2.5 font-medium" style={{ color: '#e6edf3' }}>{String(m.user_name ?? '—')}</td>
-                <td className="px-4 py-2.5 font-medium" style={{ color: '#d29922' }}>{String(m.gap_days ?? '—')}d</td>
-                <td className="px-4 py-2.5" style={{ color: '#3fb950' }}>{String(m.days_back ?? '—')}d</td>
+                <td className="px-4 py-2.5 font-medium" style={{ color: '#e6edf3' }}>{String(m.user_name ?? 'â€”')}</td>
+                <td className="px-4 py-2.5 font-medium" style={{ color: '#d29922' }}>{String(m.gap_days ?? 'â€”')}d</td>
+                <td className="px-4 py-2.5" style={{ color: '#3fb950' }}>{String(m.days_back ?? 'â€”')}d</td>
                 <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>
-                  {preGapMood > 0 ? preGapMood.toFixed(1) : '—'}
+                  {preGapMood > 0 ? preGapMood.toFixed(1) : 'â€”'}
                 </td>
                 <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>
-                  {postGapMood > 0 ? postGapMood.toFixed(1) : '—'}
+                  {postGapMood > 0 ? postGapMood.toFixed(1) : 'â€”'}
                 </td>
                 <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>
-                  {preGapHabits > 0 ? `${Math.round(preGapHabits * 100)}%` : '—'}
+                  {preGapHabits > 0 ? `${Math.round(preGapHabits * 100)}%` : 'â€”'}
                 </td>
                 <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>
-                  {postGapHabits > 0 ? `${Math.round(postGapHabits * 100)}%` : '—'}
+                  {postGapHabits > 0 ? `${Math.round(postGapHabits * 100)}%` : 'â€”'}
                 </td>
                 <td className="px-4 py-2.5">
                   {overallNegative ? (
@@ -916,7 +916,7 @@ function ReEngagementTab({ userModels }: { userModels: UserModel[] }) {
   )
 }
 
-// ─── Gap Detection Tab ──────────────────────────────────────────────────────
+// â”€â”€â”€ Gap Detection Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function GapDetectionTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
   function exportCSV(rows: ContextSnapshot[]) {
@@ -941,7 +941,7 @@ function GapDetectionTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           { label: 'Active day rate < 30%', value: lowActivity.length, color: '#f85149' },
           { label: 'Total active days < 14', value: lowData.length, color: '#d29922' },
@@ -988,11 +988,11 @@ function GapDetectionTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
                 if (totalDays < 14) flags.push('low data volume')
                 return (
                   <tr key={String(s.user_id ?? i)} style={{ background: '#080b0f', borderBottom: i < combined.length - 1 ? '1px solid #1a2332' : undefined }}>
-                    <td className="px-4 py-2.5 font-medium" style={{ color: '#e6edf3' }}>{String(s.user_name ?? '—')}</td>
-                    <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{String(s.user_email ?? '—')}</td>
+                    <td className="px-4 py-2.5 font-medium" style={{ color: '#e6edf3' }}>{String(s.user_name ?? 'â€”')}</td>
+                    <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{String(s.user_email ?? 'â€”')}</td>
                     <td className="px-4 py-2.5 font-medium" style={{ color: activePct < 30 ? '#f85149' : '#7d8fa3' }}>{activePct}%</td>
                     <td className="px-4 py-2.5 font-medium" style={{ color: totalDays < 14 ? '#d29922' : '#7d8fa3' }}>{totalDays}</td>
-                    <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{String(s.data_confidence_score ?? '—')}</td>
+                    <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{String(s.data_confidence_score ?? 'â€”')}</td>
                     <td className="px-4 py-2.5">
                       <div className="flex flex-wrap gap-1">
                         {flags.map((f) => (
@@ -1011,7 +1011,7 @@ function GapDetectionTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
   )
 }
 
-// ─── Correlation Confidence Tab ──────────────────────────────────────────────
+// â”€â”€â”€ Correlation Confidence Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function CorrelationTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
   type CorrelationRow = {
@@ -1043,8 +1043,8 @@ function CorrelationTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
 
     return {
       userId: String(s.user_id ?? ''),
-      userName: String(s.user_name ?? '—'),
-      strongestCorr: strongest ? `${String(strongest.metric_a ?? '?')} × ${String(strongest.metric_b ?? '?')}` : '—',
+      userName: String(s.user_name ?? 'â€”'),
+      strongestCorr: strongest ? `${String(strongest.metric_a ?? '?')} Ã— ${String(strongest.metric_b ?? '?')}` : 'â€”',
       dataPoints,
       confidence,
       healthScore,
@@ -1074,8 +1074,8 @@ function CorrelationTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
                 <td className="px-4 py-2.5 text-xs" style={{ color: '#bc8cff' }}>{r.strongestCorr}</td>
                 <td className="px-4 py-2.5">
                   <span className="text-sm font-medium" style={{ color: r.lowPoints ? '#f85149' : '#e6edf3' }}>
-                    {r.dataPoints > 0 ? r.dataPoints : '—'}
-                    {r.lowPoints && ' ⚠'}
+                    {r.dataPoints > 0 ? r.dataPoints : 'â€”'}
+                    {r.lowPoints && ' âš '}
                   </span>
                 </td>
                 <td className="px-4 py-2.5 font-medium" style={{ color: r.confidence < 30 ? '#f85149' : r.confidence < 60 ? '#d29922' : '#3fb950' }}>
@@ -1103,7 +1103,7 @@ function CorrelationTab({ snapshots }: { snapshots: ContextSnapshot[] }) {
   )
 }
 
-// ─── Main GardenerClient ─────────────────────────────────────────────────────
+// â”€â”€â”€ Main GardenerClient â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function GardenerClient({ summaries, profiles, promptVersions, contextSnapshots, userModels }: Props) {
   const [tab, setTab] = useState<Tab>('summaries')
@@ -1117,7 +1117,7 @@ export default function GardenerClient({ summaries, profiles, promptVersions, co
           ratedSummaries.reduce((sum, s) => sum + (s.quality_score ?? 0), 0) /
           ratedSummaries.length
         ).toFixed(1)
-      : '—'
+      : 'â€”'
 
   const [, startRebuild] = useTransition()
 
@@ -1131,7 +1131,7 @@ export default function GardenerClient({ summaries, profiles, promptVersions, co
         )
         await admin.functions.invoke('rebuild-gardener-context', { body: { userId } })
       } catch {
-        // Edge function call from client — requires service role on server
+        // Edge function call from client â€” requires service role on server
         // In production, wire this to a server action
       }
     })
@@ -1152,7 +1152,7 @@ export default function GardenerClient({ summaries, profiles, promptVersions, co
     <div>
       <PageHeader title="The Gardener" subtitle="AI coaching summaries" />
 
-      <div className="grid grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         <StatCard label="Total Summaries" value={summaries.length} color="#e6edf3" />
         <StatCard label="Flagged" value={flaggedCount} color="#f85149" />
         <StatCard label="Prompt Versions" value={versionCount} color="#bc8cff" />
@@ -1204,3 +1204,4 @@ export default function GardenerClient({ summaries, profiles, promptVersions, co
     </div>
   )
 }
+

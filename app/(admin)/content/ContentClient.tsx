@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import PageHeader from '@/components/ui/PageHeader'
@@ -96,7 +96,7 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
     <div>
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
-        <PageHeader title="Growth Bible" subtitle={`${publishedCount} published · ${draftCount} draft`} />
+        <PageHeader title="Growth Bible" subtitle={`${publishedCount} published Â· ${draftCount} draft`} />
         <div className="pt-1">
           {tab === 'videos' && (
             <Btn onClick={() => setShowAddForm(v => !v)}>{showAddForm ? 'Cancel' : '+ Add Video'}</Btn>
@@ -127,13 +127,13 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
         ))}
       </div>
 
-      {/* ── VIDEOS TAB ── */}
+      {/* â”€â”€ VIDEOS TAB â”€â”€ */}
       {tab === 'videos' && (
         <>
           {showAddForm && (
             <div className="rounded-lg p-5 mb-6" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
               <p className="text-sm font-semibold mb-4" style={{ color: C.text }}>New Video</p>
-              <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="block text-xs mb-1.5" style={{ color: C.muted }}>Title *</label>
                   <input value={title} onChange={e => setTitle(e.target.value)} className="w-full rounded px-3 py-2 text-sm outline-none" style={inp} />
@@ -148,7 +148,7 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
                 </div>
               </div>
               <Btn onClick={handleAddVideo} disabled={isPending || !title.trim()}>
-                {isPending ? 'Adding…' : 'Add Video'}
+                {isPending ? 'Addingâ€¦' : 'Add Video'}
               </Btn>
             </div>
           )}
@@ -180,13 +180,13 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
                         </button>
                       </td>
                       <td className="px-4 py-3" style={{ color: C.text }}>
-                        {v.duration_seconds != null ? `${v.duration_seconds}s` : '—'}
+                        {v.duration_seconds != null ? `${v.duration_seconds}s` : 'â€”'}
                       </td>
                       <td className="px-4 py-3 font-medium" style={{ color: v.avg_watch_pct != null ? C.cyan : C.muted }}>
-                        {v.avg_watch_pct != null ? `${v.avg_watch_pct}%` : '—'}
+                        {v.avg_watch_pct != null ? `${v.avg_watch_pct}%` : 'â€”'}
                       </td>
                       <td className="px-4 py-3 font-medium" style={{ color: v.completion_rate != null ? C.green : C.muted }}>
-                        {v.completion_rate != null ? `${v.completion_rate}%` : '—'}
+                        {v.completion_rate != null ? `${v.completion_rate}%` : 'â€”'}
                       </td>
                       <td className="px-4 py-3">
                         <Badge color={v.is_published ? C.green : C.muted}>
@@ -215,11 +215,11 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
         </>
       )}
 
-      {/* ── PLAYLISTS TAB ── */}
+      {/* â”€â”€ PLAYLISTS TAB â”€â”€ */}
       {tab === 'playlists' && (
         <div className="space-y-8">
           <div className="rounded-lg p-6 text-center" style={{ background: C.surface, border: `1px dashed ${C.border}` }}>
-            <p className="text-sm font-medium mb-1" style={{ color: C.text }}>Playlists — Coming Soon</p>
+            <p className="text-sm font-medium mb-1" style={{ color: C.text }}>Playlists â€” Coming Soon</p>
             <p className="text-xs" style={{ color: C.muted }}>
               Curated playlists will be available once the playlists feature is built. Suggested playlists from co-watch data are shown below.
             </p>
@@ -239,7 +239,7 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
                     <div>
                       <p className="text-sm font-medium mb-1" style={{ color: C.text }}>{sp.name}</p>
                       <p className="text-xs" style={{ color: C.muted }}>
-                        {sp.videoIds.length} videos · appeared in {sp.count} session{sp.count !== 1 ? 's' : ''}
+                        {sp.videoIds.length} videos Â· appeared in {sp.count} session{sp.count !== 1 ? 's' : ''}
                       </p>
                     </div>
                     <Btn variant="ghost" disabled={isPending} onClick={() => startTransition(async () => {
@@ -256,11 +256,11 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
         </div>
       )}
 
-      {/* ── A/B TESTS TAB ── */}
+      {/* â”€â”€ A/B TESTS TAB â”€â”€ */}
       {tab === 'abtests' && (
         <div className="space-y-6">
           <div className="rounded-lg p-6 text-center" style={{ background: C.surface, border: `1px dashed ${C.border}` }}>
-            <p className="text-sm font-medium mb-1" style={{ color: C.text }}>A/B Tests — Coming Soon</p>
+            <p className="text-sm font-medium mb-1" style={{ color: C.text }}>A/B Tests â€” Coming Soon</p>
             <p className="text-xs" style={{ color: C.muted }}>
               Title variant testing will be available in a future release. No A/B test data is being collected yet.
             </p>
@@ -283,7 +283,7 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
                           <div className="rounded p-3" style={{ background: C.bg, border: `1px solid ${winner === 'a' ? C.green : C.border}` }}>
                             <div className="flex items-center gap-2 mb-1.5">
                               <span className="text-xs font-bold" style={{ color: C.muted }}>A</span>
-                              {winner === 'a' && <span className="text-xs" style={{ color: C.green }}>★ Winner</span>}
+                              {winner === 'a' && <span className="text-xs" style={{ color: C.green }}>â˜… Winner</span>}
                             </div>
                             <p className="text-sm mb-1.5" style={{ color: C.text }}>{test.variant_a_title}</p>
                             <p className="text-xs" style={{ color: C.blue }}>{test.variant_a_views.toLocaleString()} views</p>
@@ -291,7 +291,7 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
                           <div className="rounded p-3" style={{ background: C.bg, border: `1px solid ${winner === 'b' ? C.green : C.border}` }}>
                             <div className="flex items-center gap-2 mb-1.5">
                               <span className="text-xs font-bold" style={{ color: C.muted }}>B</span>
-                              {winner === 'b' && <span className="text-xs" style={{ color: C.green }}>★ Winner</span>}
+                              {winner === 'b' && <span className="text-xs" style={{ color: C.green }}>â˜… Winner</span>}
                             </div>
                             <p className="text-sm mb-1.5" style={{ color: C.text }}>{test.variant_b_title}</p>
                             <p className="text-xs" style={{ color: C.blue }}>{test.variant_b_views.toLocaleString()} views</p>
@@ -314,11 +314,11 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
         </div>
       )}
 
-      {/* ── PERFORMANCE TAB ── */}
+      {/* â”€â”€ PERFORMANCE TAB â”€â”€ */}
       {tab === 'performance' && (
         <div className="flex flex-col gap-6">
           {/* Top line stats */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {(() => {
               const published = videosWithStats.filter((v) => v.is_published)
               const withData = published.filter((v) => v.avg_watch_pct != null)
@@ -330,20 +330,20 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
                 <>
                   <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
                     <p className="text-xs uppercase tracking-wider mb-2" style={{ color: C.muted }}>Avg Watch %</p>
-                    <p className="text-2xl font-bold" style={{ color: avgWatch != null ? C.cyan : C.muted }}>{avgWatch != null ? `${avgWatch}%` : '—'}</p>
+                    <p className="text-2xl font-bold" style={{ color: avgWatch != null ? C.cyan : C.muted }}>{avgWatch != null ? `${avgWatch}%` : 'â€”'}</p>
                   </div>
                   <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
                     <p className="text-xs uppercase tracking-wider mb-2" style={{ color: C.muted }}>Avg Completion Rate</p>
-                    <p className="text-2xl font-bold" style={{ color: avgCompletion != null ? C.green : C.muted }}>{avgCompletion != null ? `${avgCompletion}%` : '—'}</p>
+                    <p className="text-2xl font-bold" style={{ color: avgCompletion != null ? C.green : C.muted }}>{avgCompletion != null ? `${avgCompletion}%` : 'â€”'}</p>
                   </div>
                   <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
                     <p className="text-xs uppercase tracking-wider mb-2" style={{ color: C.muted }}>Most Watched</p>
-                    <p className="text-sm font-medium truncate" style={{ color: C.green }}>{mostWatched?.title ?? '—'}</p>
+                    <p className="text-sm font-medium truncate" style={{ color: C.green }}>{mostWatched?.title ?? 'â€”'}</p>
                     {mostWatched?.avg_watch_pct != null && <p className="text-xs mt-1" style={{ color: C.muted }}>{mostWatched.avg_watch_pct}% avg</p>}
                   </div>
                   <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
                     <p className="text-xs uppercase tracking-wider mb-2" style={{ color: C.muted }}>Least Watched</p>
-                    <p className="text-sm font-medium truncate" style={{ color: C.amber }}>{leastWatched?.title ?? '—'}</p>
+                    <p className="text-sm font-medium truncate" style={{ color: C.amber }}>{leastWatched?.title ?? 'â€”'}</p>
                     {leastWatched?.avg_watch_pct != null && <p className="text-xs mt-1" style={{ color: C.muted }}>{leastWatched.avg_watch_pct}% avg</p>}
                   </div>
                 </>
@@ -364,8 +364,8 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
                   <div className="flex justify-between text-xs mb-1">
                     <span className="truncate flex-1 mr-4" style={{ color: C.text }}>{v.title}</span>
                     <span style={{ color: C.muted }}>
-                      {v.completion_rate != null ? `${v.completion_rate}%` : '—'}
-                      {v.avg_watch_pct != null ? ` · ${v.avg_watch_pct}% avg watch` : ''}
+                      {v.completion_rate != null ? `${v.completion_rate}%` : 'â€”'}
+                      {v.avg_watch_pct != null ? ` Â· ${v.avg_watch_pct}% avg watch` : ''}
                     </span>
                   </div>
                   <ProgressBar
@@ -382,7 +382,7 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
         </div>
       )}
 
-      {/* ── OUTCOMES / CORRELATION TAB ── */}
+      {/* â”€â”€ OUTCOMES / CORRELATION TAB â”€â”€ */}
       {tab === 'correlation' && (
         <div className="flex flex-col gap-6">
           <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
@@ -393,16 +393,16 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
             </p>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: 'Growth Bible → Habit Consistency', note: 'Users who complete 3+ videos/week' },
-                { label: 'Growth Bible → Mood Score', note: 'Based on journal mood before/after' },
-                { label: 'Topic completion → Goal completion', note: 'Same-topic goals' },
-                { label: 'Watch time → App retention', note: '30-day active rate' },
+                { label: 'Growth Bible â†’ Habit Consistency', note: 'Users who complete 3+ videos/week' },
+                { label: 'Growth Bible â†’ Mood Score', note: 'Based on journal mood before/after' },
+                { label: 'Topic completion â†’ Goal completion', note: 'Same-topic goals' },
+                { label: 'Watch time â†’ App retention', note: '30-day active rate' },
               ].map(({ label, note }) => (
                 <div key={label} className="rounded-lg p-4" style={{ background: C.bg, border: `1px solid ${C.border}` }}>
                   <p className="text-sm font-medium mb-1" style={{ color: C.text }}>{label}</p>
                   <p className="text-xs" style={{ color: C.muted }}>{note}</p>
                   <p className="text-xs mt-2" style={{ color: C.muted }}>
-                    r = — · <span style={{ color: C.muted }}>requires user_models data</span>
+                    r = â€” Â· <span style={{ color: C.muted }}>requires user_models data</span>
                   </p>
                 </div>
               ))}
@@ -414,7 +414,7 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
         </div>
       )}
 
-      {/* ── WATCH DISTRIBUTION DRAWER ── */}
+      {/* â”€â”€ WATCH DISTRIBUTION DRAWER â”€â”€ */}
       {drawer && (
         <div
           className="fixed inset-0 z-50 flex justify-end"
@@ -432,21 +432,21 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
                 <h3 className="text-sm font-semibold leading-snug" style={{ color: C.text }}>{drawer.title}</h3>
               </div>
               <button onClick={() => setDrawer(null)} className="text-2xl leading-none mt-0.5 shrink-0" style={{ color: C.muted, background: 'none', border: 'none', cursor: 'pointer' }}>
-                ×
+                Ã—
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="rounded p-3" style={{ background: C.bg, border: `1px solid ${C.border}` }}>
                 <p className="text-xs mb-1" style={{ color: C.muted }}>Avg Watch</p>
                 <p className="text-xl font-semibold" style={{ color: C.cyan }}>
-                  {drawer.avg_watch_pct != null ? `${drawer.avg_watch_pct}%` : '—'}
+                  {drawer.avg_watch_pct != null ? `${drawer.avg_watch_pct}%` : 'â€”'}
                 </p>
               </div>
               <div className="rounded p-3" style={{ background: C.bg, border: `1px solid ${C.border}` }}>
                 <p className="text-xs mb-1" style={{ color: C.muted }}>Completion Rate</p>
                 <p className="text-xl font-semibold" style={{ color: C.green }}>
-                  {drawer.completion_rate != null ? `${drawer.completion_rate}%` : '—'}
+                  {drawer.completion_rate != null ? `${drawer.completion_rate}%` : 'â€”'}
                 </p>
               </div>
             </div>
@@ -472,3 +472,4 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
     </div>
   )
 }
+

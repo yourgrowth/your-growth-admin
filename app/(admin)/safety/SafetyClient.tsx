@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useTransition } from 'react'
 import Link from 'next/link'
@@ -42,10 +42,10 @@ const LAYER_COLORS: Record<string, string> = {
 }
 
 const LAYER_EXPLANATIONS: Record<string, string> = {
-  crisis: 'User expressed crisis or distress — crisis resources were shown automatically.',
+  crisis: 'User expressed crisis or distress â€” crisis resources were shown automatically.',
   input: 'User input triggered a safety pattern check before reaching the AI.',
   output: 'AI output was filtered or modified before being shown to the user.',
-  scope: 'Message was out of scope for The Gardener — only personal growth topics allowed.',
+  scope: 'Message was out of scope for The Gardener â€” only personal growth topics allowed.',
   rate_limit: 'User hit the message rate limit (20 messages/hour).',
 }
 
@@ -224,14 +224,14 @@ export default function SafetyClient({
                       <div className="w-2 h-2 rounded-full" style={{ background: C.red, boxShadow: `0 0 4px ${C.red}` }} title="Unreviewed crisis" />
                     )}
                     {reviewed && (
-                      <span className="text-xs" style={{ color: C.green }}>✓</span>
+                      <span className="text-xs" style={{ color: C.green }}>âœ“</span>
                     )}
                   </td>
                   <td className="px-4 py-2.5 text-xs whitespace-nowrap" style={{ color: C.muted }}>
                     {new Date(f.created_at).toLocaleString()}
                   </td>
                   <td className="px-4 py-2.5 text-xs" style={{ color: C.text }}>
-                    {f.user_name ?? f.user_id.slice(0, 8) + '…'}
+                    {f.user_name ?? f.user_id.slice(0, 8) + 'â€¦'}
                   </td>
                   <td className="px-4 py-2.5">
                     {f.layer_caught && (
@@ -242,7 +242,7 @@ export default function SafetyClient({
                     {f.action_taken && <Badge color={C.blue}>{f.action_taken}</Badge>}
                   </td>
                   <td className="px-4 py-2.5 text-xs max-w-xs truncate" style={{ color: C.muted }}>
-                    {f.trigger_text ? f.trigger_text.slice(0, 60) + (f.trigger_text.length > 60 ? '…' : '') : '—'}
+                    {f.trigger_text ? f.trigger_text.slice(0, 60) + (f.trigger_text.length > 60 ? 'â€¦' : '') : 'â€”'}
                   </td>
                 </tr>
               )
@@ -260,7 +260,7 @@ export default function SafetyClient({
   return (
     <div>
       {/* Header stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard label="Crisis Events All Time" value={totalCrisisAllTime} color={C.red} />
         <StatCard label="Crisis This Month" value={thisMonthCrisis} color={C.red} />
         <StatCard label="Crisis Last Month" value={lastMonthCrisis} color={C.amber} />
@@ -302,7 +302,7 @@ export default function SafetyClient({
       {tab === 'all' && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3 flex-wrap">
-            <input placeholder="Search user or trigger text…" value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...inp, width: 260 }} />
+            <input placeholder="Search user or trigger textâ€¦" value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...inp, width: 260 }} />
             <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} style={{ ...inp, width: 140 }}>
               <option value="all">All sources</option>
               <option value="chat">chat</option>
@@ -349,7 +349,7 @@ export default function SafetyClient({
         <div className="flex flex-col gap-4">
           <div className="rounded-lg p-4 mb-2" style={{ background: C.surface, border: `1px solid ${C.amber}` }}>
             <p className="text-xs" style={{ color: C.amber }}>
-              Output-filter replacements that did NOT contain crisis keywords — likely false positives. Mark them to improve the output filter prompt.
+              Output-filter replacements that did NOT contain crisis keywords â€” likely false positives. Mark them to improve the output filter prompt.
             </p>
           </div>
           <FlagTable rows={falsePositives} showDrawer />
@@ -380,7 +380,7 @@ export default function SafetyClient({
                   {rateLimitUsers.filter(u => u.count >= 3).map((u, i) => (
                     <tr key={u.userId} style={{ background: C.bg, borderBottom: i < rateLimitUsers.length - 1 ? `1px solid ${C.border}` : undefined }}>
                       <td className="px-4 py-2.5 text-xs" style={{ color: C.text }}>
-                        <Link href={`/users/${u.userId}`} className="hover:underline" style={{ color: C.blue }}>{u.user_name ?? u.userId.slice(0, 8) + '…'}</Link>
+                        <Link href={`/users/${u.userId}`} className="hover:underline" style={{ color: C.blue }}>{u.user_name ?? u.userId.slice(0, 8) + 'â€¦'}</Link>
                       </td>
                       <td className="px-4 py-2.5 text-xs font-semibold" style={{ color: u.count >= 10 ? C.red : C.amber }}>{u.count}</td>
                       <td className="px-4 py-2.5 text-xs" style={{ color: C.muted }}>{new Date(u.first).toLocaleString()}</td>
@@ -416,7 +416,7 @@ export default function SafetyClient({
                     <td className="px-4 py-2.5 text-xs" style={{ color: C.muted }}>{c.count}</td>
                     <td className="px-4 py-2.5">
                       <span className="text-xs" style={{ color: c.covered ? C.green : C.red }}>
-                        {c.covered ? '✓ Covered' : '✗ Default resources only'}
+                        {c.covered ? 'âœ“ Covered' : 'âœ— Default resources only'}
                       </span>
                     </td>
                   </tr>
@@ -445,7 +445,7 @@ export default function SafetyClient({
                 </div>
                 <p className="text-xs" style={{ color: C.muted }}>{new Date(drawerFlag.created_at).toLocaleString()}</p>
               </div>
-              <button onClick={() => setDrawerFlag(null)} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 20, lineHeight: 1 }}>×</button>
+              <button onClick={() => setDrawerFlag(null)} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 20, lineHeight: 1 }}>Ã—</button>
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-5">
@@ -453,7 +453,7 @@ export default function SafetyClient({
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: C.muted }}>Trigger Text</p>
                 <div className="rounded-lg p-4 text-sm leading-relaxed" style={{ background: C.bg, border: `1px solid ${C.border}`, color: C.text }}>
-                  {drawerFlag.trigger_text ?? '—'}
+                  {drawerFlag.trigger_text ?? 'â€”'}
                 </div>
               </div>
 
@@ -463,7 +463,7 @@ export default function SafetyClient({
                   <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: C.muted }}>Why This Was Flagged</p>
                   <div className="rounded-lg p-4" style={{ background: C.bg, border: `1px solid ${layerColor(drawerFlag.layer_caught)}22` }}>
                     <p className="text-xs font-semibold mb-1" style={{ color: layerColor(drawerFlag.layer_caught) }}>{drawerFlag.layer_caught}</p>
-                    <p className="text-sm" style={{ color: C.text }}>{LAYER_EXPLANATIONS[drawerFlag.layer_caught] ?? '—'}</p>
+                    <p className="text-sm" style={{ color: C.text }}>{LAYER_EXPLANATIONS[drawerFlag.layer_caught] ?? 'â€”'}</p>
                   </div>
                 </div>
               )}
@@ -474,7 +474,7 @@ export default function SafetyClient({
                   <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: C.muted }}>Action Taken</p>
                   <div className="rounded-lg p-4" style={{ background: C.bg, border: `1px solid ${C.border}` }}>
                     <p className="text-xs font-semibold mb-1" style={{ color: C.blue }}>{drawerFlag.action_taken}</p>
-                    <p className="text-sm" style={{ color: C.text }}>{ACTION_EXPLANATIONS[drawerFlag.action_taken] ?? '—'}</p>
+                    <p className="text-sm" style={{ color: C.text }}>{ACTION_EXPLANATIONS[drawerFlag.action_taken] ?? 'â€”'}</p>
                   </div>
                 </div>
               )}
@@ -524,7 +524,7 @@ export default function SafetyClient({
                     {crisisResources.map((r) => (
                       <div key={r.name} className="rounded-lg p-3" style={{ background: '#f8514910', border: `1px solid #f8514930` }}>
                         <p className="text-xs font-semibold mb-0.5" style={{ color: C.red }}>{r.name}</p>
-                        <p className="text-xs" style={{ color: C.text }}>📞 {r.phone}</p>
+                        <p className="text-xs" style={{ color: C.text }}>ðŸ“ž {r.phone}</p>
                         {r.text && <p className="text-xs mt-0.5" style={{ color: C.muted }}>{r.text}</p>}
                       </div>
                     ))}
@@ -546,7 +546,7 @@ export default function SafetyClient({
               {isReviewed(drawerFlag) && (
                 <div className="rounded-lg p-3" style={{ background: '#3fb95010', border: `1px solid #3fb95030` }}>
                   <p className="text-xs" style={{ color: C.green }}>
-                    ✓ Reviewed {drawerFlag.reviewed_at ? `on ${new Date(drawerFlag.reviewed_at).toLocaleString()}` : ''}
+                    âœ“ Reviewed {drawerFlag.reviewed_at ? `on ${new Date(drawerFlag.reviewed_at).toLocaleString()}` : ''}
                   </p>
                 </div>
               )}
@@ -564,7 +564,7 @@ export default function SafetyClient({
                     })
                   }
                 >
-                  {isPending ? 'Saving…' : 'Mark as Reviewed'}
+                  {isPending ? 'Savingâ€¦' : 'Mark as Reviewed'}
                 </Btn>
               )}
               {drawerFlag.original_response && !markedFP.has(drawerFlag.id) && (
@@ -583,7 +583,7 @@ export default function SafetyClient({
               )}
               <Link href={`/users/${drawerFlag.user_id}`}>
                 <button className="w-full px-4 py-2 rounded text-sm" style={{ background: 'transparent', border: `1px solid ${C.border}`, color: C.muted, cursor: 'pointer' }}>
-                  View User Profile →
+                  View User Profile â†’
                 </button>
               </Link>
               <button
@@ -600,3 +600,4 @@ export default function SafetyClient({
     </div>
   )
 }
+

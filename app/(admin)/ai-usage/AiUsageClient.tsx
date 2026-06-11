@@ -1,11 +1,11 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import StatCard from '@/components/ui/StatCard'
 import Badge from '@/components/ui/Badge'
 import ProgressBar from '@/components/ui/ProgressBar'
 
-// Pricing: claude-sonnet-4 — $3/1M input, $15/1M output
+// Pricing: claude-sonnet-4 â€” $3/1M input, $15/1M output
 const INPUT_COST_PER_TOKEN = 3 / 1_000_000
 const OUTPUT_COST_PER_TOKEN = 15 / 1_000_000
 
@@ -115,7 +115,7 @@ export default function AiUsageClient({ logs, profiles, chatMessages }: Props) {
       const revenue = isPro ? 7.99 : 0
       return {
         userId,
-        name: profile?.display_name ?? userId.slice(0, 8) + '…',
+        name: profile?.display_name ?? userId.slice(0, 8) + 'â€¦',
         plan,
         calls: data.calls,
         cost,
@@ -152,7 +152,7 @@ export default function AiUsageClient({ logs, profiles, chatMessages }: Props) {
 
   return (
     <div>
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard label="Total Calls (30d)" value={totalCalls.toLocaleString()} color="#e6edf3" />
         <StatCard label="Est. Cost (30d)" value={fmt(totalCost)} color="#3fb950" />
         <StatCard label="Cost per Active User" value={fmt(costPerUser)} color="#58a6ff" />
@@ -182,7 +182,7 @@ export default function AiUsageClient({ logs, profiles, chatMessages }: Props) {
       {/* Cost Dashboard */}
       {tab === 'overview' && (
         <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Cost breakdown by feature */}
             <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
               <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>
@@ -199,7 +199,7 @@ export default function AiUsageClient({ logs, profiles, chatMessages }: Props) {
                     <div key={feature}>
                       <div className="flex justify-between text-xs mb-1.5">
                         <span style={{ color: '#e6edf3' }}>{feature}</span>
-                        <span style={{ color: '#7d8fa3' }}>{fmt(cost)} · {calls} calls</span>
+                        <span style={{ color: '#7d8fa3' }}>{fmt(cost)} Â· {calls} calls</span>
                       </div>
                       <ProgressBar value={pct} color={color} />
                     </div>
@@ -293,18 +293,18 @@ export default function AiUsageClient({ logs, profiles, chatMessages }: Props) {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <Badge color={FEATURE_COLORS[f.feature] ?? '#7d8fa3'}>{f.feature}</Badge>
-                  <span className="text-xs" style={{ color: '#7d8fa3' }}>{f.calls} calls · {fmt(f.cost)}</span>
+                  <span className="text-xs" style={{ color: '#7d8fa3' }}>{f.calls} calls Â· {fmt(f.cost)}</span>
                 </div>
                 <span className="text-xs" style={{ color: f.errorRate > 5 ? '#f85149' : '#7d8fa3' }}>
                   {f.errorRate}% error rate
                 </span>
               </div>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                   { label: 'Total calls', value: f.calls.toLocaleString(), color: '#e6edf3' },
                   { label: 'Avg tokens/call', value: f.avgTokens.toLocaleString(), color: '#7d8fa3' },
                   { label: 'Est. cost', value: fmt(f.cost), color: '#3fb950' },
-                  { label: 'Avg response', value: f.avgMs > 0 ? `${f.avgMs}ms` : '—', color: '#58a6ff' },
+                  { label: 'Avg response', value: f.avgMs > 0 ? `${f.avgMs}ms` : 'â€”', color: '#58a6ff' },
                 ].map(({ label, value, color }) => (
                   <div key={label} className="rounded-lg p-3" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
                     <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>{label}</p>
@@ -347,15 +347,15 @@ export default function AiUsageClient({ logs, profiles, chatMessages }: Props) {
                     </td>
                     <td className="px-4 py-2.5" style={{ color: '#7d8fa3' }}>{u.calls}</td>
                     <td className="px-4 py-2.5 font-medium" style={{ color: '#3fb950' }}>{fmt(u.cost)}</td>
-                    <td className="px-4 py-2.5" style={{ color: '#7d8fa3' }}>{u.revenue > 0 ? fmt(u.revenue) : '—'}</td>
+                    <td className="px-4 py-2.5" style={{ color: '#7d8fa3' }}>{u.revenue > 0 ? fmt(u.revenue) : 'â€”'}</td>
                     <td className="px-4 py-2.5">
                       {u.overRevenue && u.revenue > 0 ? (
                         <Badge color="#f85149">Over budget</Badge>
                       ) : (
-                        <span className="text-xs" style={{ color: '#3fb950' }}>✓</span>
+                        <span className="text-xs" style={{ color: '#3fb950' }}>âœ“</span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-xs max-w-xs truncate" style={{ color: '#7d8fa3' }}>{u.features || '—'}</td>
+                    <td className="px-4 py-2.5 text-xs max-w-xs truncate" style={{ color: '#7d8fa3' }}>{u.features || 'â€”'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -367,7 +367,7 @@ export default function AiUsageClient({ logs, profiles, chatMessages }: Props) {
       {/* Errors tab */}
       {tab === 'errors' && (
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="rounded-lg p-4" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
               <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Total errors (30d)</p>
               <p className="text-2xl font-bold" style={{ color: '#f85149' }}>{errorLogs.length}</p>
@@ -385,7 +385,7 @@ export default function AiUsageClient({ logs, profiles, chatMessages }: Props) {
                   const successful = logs.filter((l) => !l.error && l.duration_ms)
                   return successful.length > 0
                     ? `${Math.round(successful.reduce((s, l) => s + (l.duration_ms ?? 0), 0) / successful.length)}ms`
-                    : '—'
+                    : 'â€”'
                 })()}
               </p>
             </div>
@@ -414,14 +414,14 @@ export default function AiUsageClient({ logs, profiles, chatMessages }: Props) {
                         {new Date(l.created_at).toLocaleString()}
                       </td>
                       <td className="px-4 py-2.5">
-                        <Badge color={FEATURE_COLORS[l.feature ?? ''] ?? '#7d8fa3'}>{l.feature ?? '—'}</Badge>
+                        <Badge color={FEATURE_COLORS[l.feature ?? ''] ?? '#7d8fa3'}>{l.feature ?? 'â€”'}</Badge>
                       </td>
                       <td className="px-4 py-2.5 text-xs max-w-xs truncate" style={{ color: '#f85149' }}>
-                        {l.error ?? '—'}
+                        {l.error ?? 'â€”'}
                       </td>
-                      <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{l.model ?? '—'}</td>
+                      <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{l.model ?? 'â€”'}</td>
                       <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>
-                        {l.duration_ms ? `${l.duration_ms}ms` : '—'}
+                        {l.duration_ms ? `${l.duration_ms}ms` : 'â€”'}
                       </td>
                     </tr>
                   ))}
@@ -434,3 +434,4 @@ export default function AiUsageClient({ logs, profiles, chatMessages }: Props) {
     </div>
   )
 }
+

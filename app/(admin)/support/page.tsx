@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition, useEffect } from 'react'
 import PageHeader from '@/components/ui/PageHeader'
@@ -61,11 +61,11 @@ export default function SupportPage() {
     <div style={T}>
       <PageHeader title="Support" subtitle="User support ticket management" />
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatCard label="Open Tickets" value={stats.open} color="#f85149" />
         <StatCard label="In Progress" value={stats.inProgress} color="#d29922" />
         <StatCard label="Resolved Today" value={stats.resolvedToday} color="#3fb950" />
-        <StatCard label="Avg Response Time" value={stats.avgResponseMs ? `${Math.round(stats.avgResponseMs / 60000)}m` : '—'} color="#58a6ff" />
+        <StatCard label="Avg Response Time" value={stats.avgResponseMs ? `${Math.round(stats.avgResponseMs / 60000)}m` : 'â€”'} color="#58a6ff" />
       </div>
 
       {/* Filters */}
@@ -116,7 +116,7 @@ export default function SupportPage() {
           </thead>
           <tbody>
             {isPending && tickets.length === 0 ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-xs" style={{ color: '#7d8fa3', background: '#080b0f' }}>Loading…</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-xs" style={{ color: '#7d8fa3', background: '#080b0f' }}>Loadingâ€¦</td></tr>
             ) : filtered.length === 0 ? (
               <tr><td colSpan={7} className="px-4 py-8 text-center text-xs" style={{ color: '#7d8fa3', background: '#080b0f' }}>No tickets found.</td></tr>
             ) : (
@@ -130,16 +130,16 @@ export default function SupportPage() {
                   onMouseLeave={e => (e.currentTarget.style.background = '#080b0f')}
                 >
                   <td className="px-4 py-3 max-w-48">
-                    <p className="truncate text-sm" style={{ color: '#e6edf3' }}>{ticket.subject ?? '—'}</p>
+                    <p className="truncate text-sm" style={{ color: '#e6edf3' }}>{ticket.subject ?? 'â€”'}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-xs" style={{ color: '#e6edf3' }}>{ticket.user_name ?? '—'}</p>
+                    <p className="text-xs" style={{ color: '#e6edf3' }}>{ticket.user_name ?? 'â€”'}</p>
                     <p className="text-xs" style={{ color: '#7d8fa3' }}>{ticket.user_email ?? ''}</p>
                   </td>
                   <td className="px-4 py-3"><Badge color={priorityColor(ticket.priority)}>{ticket.priority}</Badge></td>
                   <td className="px-4 py-3"><Badge color={statusColor(ticket.status)}>{ticket.status.replace('_', ' ')}</Badge></td>
                   <td className="px-4 py-3 text-xs" style={{ color: '#7d8fa3' }}>{new Date(ticket.created_at).toLocaleDateString()}</td>
-                  <td className="px-4 py-3 text-xs" style={{ color: '#7d8fa3' }}>{ticket.assigned_name ?? '—'}</td>
+                  <td className="px-4 py-3 text-xs" style={{ color: '#7d8fa3' }}>{ticket.assigned_name ?? 'â€”'}</td>
                   <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                     <button
                       onClick={() => {
@@ -173,3 +173,4 @@ export default function SupportPage() {
     </div>
   )
 }
+

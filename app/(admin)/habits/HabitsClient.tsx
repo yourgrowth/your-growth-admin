@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo } from 'react'
 import PageHeader from '@/components/ui/PageHeader'
@@ -41,7 +41,7 @@ export default function HabitsClient({ habits, totalCompletions, mostPopular }: 
     <div>
       <PageHeader title="Habits" subtitle="User habit tracking" />
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <StatCard label="Total Habits Created" value={habits.length} color="#3fb950" />
         <StatCard
           label="Avg Completions / Habit"
@@ -51,7 +51,7 @@ export default function HabitsClient({ habits, totalCompletions, mostPopular }: 
         />
         <StatCard
           label="Most Popular Habit"
-          value={mostPopular || '—'}
+          value={mostPopular || 'â€”'}
           color="#bc8cff"
         />
       </div>
@@ -59,7 +59,7 @@ export default function HabitsClient({ habits, totalCompletions, mostPopular }: 
       <div className="mb-4 flex items-center gap-3">
         <input
           type="search"
-          placeholder="Search by habit name or category…"
+          placeholder="Search by habit name or categoryâ€¦"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full max-w-sm rounded px-3 py-2 text-sm outline-none"
@@ -132,7 +132,7 @@ export default function HabitsClient({ habits, totalCompletions, mostPopular }: 
                         {habit.category}
                       </span>
                     ) : (
-                      <span style={{ color: '#7d8fa3' }}>—</span>
+                      <span style={{ color: '#7d8fa3' }}>â€”</span>
                     )}
                   </td>
                   <td className="px-4 py-3 font-bold" style={{ color: '#3fb950' }}>
@@ -150,3 +150,4 @@ export default function HabitsClient({ habits, totalCompletions, mostPopular }: 
     </div>
   )
 }
+

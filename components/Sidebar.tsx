@@ -74,12 +74,13 @@ const nav: { group: string; items: NavItem[] }[] = [
   },
 ]
 
-function NavLink({ item }: { item: NavItem }) {
+function NavLink({ item, onClose }: { item: NavItem; onClose?: () => void }) {
   const pathname = usePathname()
   const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'))
   return (
     <Link
       href={item.href}
+      onClick={onClose}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -160,7 +161,7 @@ function AdminFooter() {
   )
 }
 
-export default function Sidebar() {
+export default function Sidebar({ onClose }: { onClose?: () => void }) {
   return (
     <aside
       style={{
@@ -211,7 +212,7 @@ export default function Sidebar() {
             <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
               {items.map((item) => (
                 <li key={item.href}>
-                  <NavLink item={item} />
+                  <NavLink item={item} onClose={onClose} />
                 </li>
               ))}
             </ul>

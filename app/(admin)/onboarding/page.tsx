@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition, useEffect } from 'react'
 import PageHeader from '@/components/ui/PageHeader'
@@ -77,10 +77,10 @@ export default function OnboardingPage() {
     <div style={T}>
       <PageHeader
         title="Onboarding Funnel"
-        subtitle={`${totalStarted} users started · ${overallRate}% overall completion rate`}
+        subtitle={`${totalStarted} users started Â· ${overallRate}% overall completion rate`}
       />
 
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Funnel chart */}
         <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
           <div className="flex items-center justify-between mb-4">
@@ -138,7 +138,7 @@ export default function OnboardingPage() {
             {selectedStep ? `Dropped at: ${STEP_LABELS[selectedStep] ?? selectedStep}` : 'Select a step to see drop-offs'}
           </p>
           {isPending ? (
-            <p className="text-xs" style={{ color: '#7d8fa3' }}>Loading…</p>
+            <p className="text-xs" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p>
           ) : droppedUsers.length === 0 ? (
             <p className="text-xs" style={{ color: '#7d8fa3' }}>{selectedStep ? 'No dropped users at this step.' : 'Click any funnel step above.'}</p>
           ) : (
@@ -150,8 +150,8 @@ export default function OnboardingPage() {
                   style={{ background: '#080b0f', border: '1px solid #1a2332' }}
                 >
                   <div>
-                    <p className="text-xs font-medium" style={{ color: '#e6edf3' }}>{u.display_name ?? '—'}</p>
-                    <p className="text-xs" style={{ color: '#7d8fa3' }}>{u.email ?? ''} · {new Date(u.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs font-medium" style={{ color: '#e6edf3' }}>{u.display_name ?? 'â€”'}</p>
+                    <p className="text-xs" style={{ color: '#7d8fa3' }}>{u.email ?? ''} Â· {new Date(u.created_at).toLocaleDateString()}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {u.subscription_status && <Badge color="#bc8cff">{u.subscription_status}</Badge>}
@@ -192,7 +192,7 @@ export default function OnboardingPage() {
                   {row.avgSeconds}s
                 </td>
                 <td className="px-4 py-3 text-xs" style={{ color: '#7d8fa3' }}>
-                  {row.avgSeconds > 60 ? '⚠ High — may indicate confusion' : ''}
+                  {row.avgSeconds > 60 ? 'âš  High â€” may indicate confusion' : ''}
                 </td>
               </tr>
             ))}
@@ -205,3 +205,4 @@ export default function OnboardingPage() {
     </div>
   )
 }
+

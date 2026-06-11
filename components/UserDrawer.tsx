@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition, useEffect } from 'react'
 import Badge from '@/components/ui/Badge'
@@ -228,7 +228,7 @@ export default function UserDrawer({ user, onClose }: Props) {
         {showEscalationBanner && (
           <div className="px-6 py-2.5 shrink-0" style={{ background: '#f8514918', borderBottom: '1px solid #f8514966' }}>
             <p className="text-xs font-medium" style={{ color: '#f85149' }}>
-              ⚠ {unresolvedWarnings.length} unresolved warnings — consider escalation to permanent ban
+              âš  {unresolvedWarnings.length} unresolved warnings â€” consider escalation to permanent ban
             </p>
           </div>
         )}
@@ -242,12 +242,12 @@ export default function UserDrawer({ user, onClose }: Props) {
                 {(user.full_name ?? user.email)[0]?.toUpperCase() ?? '?'}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-semibold" style={{ color: '#e6edf3' }}>{user.full_name ?? '—'}</p>
+                <p className="font-semibold" style={{ color: '#e6edf3' }}>{user.full_name ?? 'â€”'}</p>
                 <p className="text-xs" style={{ color: '#7d8fa3' }}>{user.email}</p>
                 <div className="flex flex-wrap gap-1.5 mt-1.5">
                   <Badge color={isPro ? '#bc8cff' : '#7d8fa3'}>{user.plan ?? 'free'}</Badge>
                   <Badge color={isSuspended ? '#f85149' : '#3fb950'}>{user.status ?? 'active'}</Badge>
-                  <Badge color={riskColor}>{riskLabel} Risk · {user.riskScore}</Badge>
+                  <Badge color={riskColor}>{riskLabel} Risk Â· {user.riskScore}</Badge>
                   {(warnings?.filter(w => !w.resolved).length ?? 0) > 0 && (
                     <Badge color="#f85149">{warnings!.filter(w => !w.resolved).length} warnings</Badge>
                   )}
@@ -258,7 +258,7 @@ export default function UserDrawer({ user, onClose }: Props) {
               <p>Joined {new Date(user.created_at).toLocaleDateString()}</p>
               {user.last_sign_in_at && <p>Last active {new Date(user.last_sign_in_at).toLocaleDateString()}</p>}
             </div>
-            <button onClick={onClose} className="text-lg leading-none shrink-0 ml-2" style={{ color: '#7d8fa3' }}>✕</button>
+            <button onClick={onClose} className="text-lg leading-none shrink-0 ml-2" style={{ color: '#7d8fa3' }}>âœ•</button>
           </div>
 
           {/* Mini stats row */}
@@ -266,9 +266,9 @@ export default function UserDrawer({ user, onClose }: Props) {
             {[
               { label: 'Streak', value: `${user.streak ?? 0}d`, color: '#3fb950' },
               { label: 'Points', value: user.points ?? 0, color: '#58a6ff' },
-              { label: 'Stage', value: user.stage ?? '—', color: '#bc8cff' },
-              { label: 'Habits', value: habits?.length ?? '…', color: '#e6edf3' },
-              { label: 'Goals', value: goals?.length ?? '…', color: '#e6edf3' },
+              { label: 'Stage', value: user.stage ?? 'â€”', color: '#bc8cff' },
+              { label: 'Habits', value: habits?.length ?? 'â€¦', color: '#e6edf3' },
+              { label: 'Goals', value: goals?.length ?? 'â€¦', color: '#e6edf3' },
               { label: 'Completions', value: totalCompletions, color: '#3fb950' },
               { label: 'Engagement', value: engagementScore, color: '#d29922' },
             ].map(s => (
@@ -294,7 +294,7 @@ export default function UserDrawer({ user, onClose }: Props) {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
 
-          {/* ── OVERVIEW ───────────────────────────────────────────────── */}
+          {/* â”€â”€ OVERVIEW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Overview' && (
             <div className="flex flex-col gap-6">
               {/* Streak contribution grid */}
@@ -309,11 +309,11 @@ export default function UserDrawer({ user, onClose }: Props) {
               </div>
 
               {/* Engagement score */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="p-4 rounded col-span-1" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
                   <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Engagement Score</p>
                   <p className="text-3xl font-bold" style={{ color: '#d29922' }}>{engagementScore}</p>
-                  <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>streak×2 + pts/100 + completions×0.5</p>
+                  <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>streakÃ—2 + pts/100 + completionsÃ—0.5</p>
                 </div>
                 <div className="p-4 rounded" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
                   <p className="text-xs mb-2" style={{ color: '#7d8fa3' }}>Points Breakdown</p>
@@ -321,7 +321,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                     <div className="flex flex-col gap-1">
                       {pointsHistory.slice(0, 5).map(p => (
                         <div key={p.id} className="flex items-center justify-between text-xs">
-                          <span className="truncate max-w-28" style={{ color: '#7d8fa3' }}>{p.reason ?? '—'}</span>
+                          <span className="truncate max-w-28" style={{ color: '#7d8fa3' }}>{p.reason ?? 'â€”'}</span>
                           <span style={{ color: p.amount >= 0 ? '#3fb950' : '#f85149' }}>{p.amount >= 0 ? '+' : ''}{p.amount}</span>
                         </div>
                       ))}
@@ -348,7 +348,7 @@ export default function UserDrawer({ user, onClose }: Props) {
               <div className="p-4 rounded flex flex-col gap-3" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
                 <p style={sh}>Adjust Points</p>
                 <div className="flex gap-2">
-                  <input type="number" placeholder="±amount" value={pointAmount} onChange={e => setPointAmount(e.target.value)} style={{ ...inp, width: 100 }} />
+                  <input type="number" placeholder="Â±amount" value={pointAmount} onChange={e => setPointAmount(e.target.value)} style={{ ...inp, width: 100 }} />
                   <input type="text" placeholder="Reason" value={pointReason} onChange={e => setPointReason(e.target.value)} style={inp} />
                   <button onClick={() => {
                     const amount = parseInt(pointAmount)
@@ -414,11 +414,11 @@ export default function UserDrawer({ user, onClose }: Props) {
             </div>
           )}
 
-          {/* ── ACTIVITY ──────────────────────────────────────────────── */}
+          {/* â”€â”€ ACTIVITY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Activity' && (
             <div>
               {activity === null ? (
-                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loading…</p>
+                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p>
               ) : activity.length === 0 ? (
                 <p className="text-sm" style={{ color: '#7d8fa3' }}>No activity recorded.</p>
               ) : (
@@ -443,11 +443,11 @@ export default function UserDrawer({ user, onClose }: Props) {
             </div>
           )}
 
-          {/* ── HABITS ─────────────────────────────────────────────────── */}
+          {/* â”€â”€ HABITS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Habits' && (
             <div>
               {habitsExt === null ? (
-                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loading…</p>
+                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p>
               ) : habitsExt.length === 0 ? (
                 <p className="text-sm" style={{ color: '#7d8fa3' }}>No habits.</p>
               ) : (
@@ -472,9 +472,9 @@ export default function UserDrawer({ user, onClose }: Props) {
                           Delete
                         </button>
                       </div>
-                      <div className="grid grid-cols-3 gap-3 text-xs">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                         <div><span style={{ color: '#7d8fa3' }}>Completions: </span><span style={{ color: '#e6edf3' }}>{h.totalCompletions}</span></div>
-                        <div><span style={{ color: '#7d8fa3' }}>Last completed: </span><span style={{ color: '#e6edf3' }}>{h.lastCompleted ? new Date(h.lastCompleted).toLocaleDateString() : '—'}</span></div>
+                        <div><span style={{ color: '#7d8fa3' }}>Last completed: </span><span style={{ color: '#e6edf3' }}>{h.lastCompleted ? new Date(h.lastCompleted).toLocaleDateString() : 'â€”'}</span></div>
                         <div><span style={{ color: '#7d8fa3' }}>Created: </span><span style={{ color: '#e6edf3' }}>{new Date(h.created_at).toLocaleDateString()}</span></div>
                       </div>
                       <div>
@@ -502,14 +502,14 @@ export default function UserDrawer({ user, onClose }: Props) {
             </div>
           )}
 
-          {/* ── NUTRITION ──────────────────────────────────────────────── */}
+          {/* â”€â”€ NUTRITION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Nutrition' && (
             <div className="flex flex-col gap-6">
               {nutrition === null ? (
-                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loading…</p>
+                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p>
               ) : (
                 <>
-                  <div className="grid grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <StatCard label="Avg Calories/Day" value={nutrition.macros.calories} sub="7-day avg" color="#d29922" />
                     <StatCard label="Avg Protein/Day" value={`${nutrition.macros.protein}g`} color="#3fb950" />
                     <StatCard label="Avg Carbs/Day" value={`${nutrition.macros.carbs}g`} color="#58a6ff" />
@@ -534,7 +534,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                           {nutrition.topFoods.map((f, i) => (
                             <li key={f.name} className="flex items-center justify-between text-xs">
                               <span style={{ color: '#e6edf3' }}>{i + 1}. {f.name}</span>
-                              <span style={{ color: '#7d8fa3' }}>{f.count}×</span>
+                              <span style={{ color: '#7d8fa3' }}>{f.count}Ã—</span>
                             </li>
                           ))}
                         </ol>
@@ -550,7 +550,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                             {nutrition.bodyLogs.slice(0, 8).map((b, i) => (
                               <tr key={i} style={{ borderBottom: '1px solid #1a2332' }}>
                                 <td className="py-1.5 pr-3" style={{ color: '#7d8fa3' }}>{new Date(b.created_at).toLocaleDateString()}</td>
-                                <td className="py-1.5" style={{ color: '#e6edf3' }}>{b.weight != null ? `${b.weight}${b.weight_unit ?? 'kg'}` : '—'}</td>
+                                <td className="py-1.5" style={{ color: '#e6edf3' }}>{b.weight != null ? `${b.weight}${b.weight_unit ?? 'kg'}` : 'â€”'}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -567,7 +567,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                       <ul className="flex flex-col gap-2">
                         {nutrition.mealSuggestions.map(m => (
                           <li key={m.id} className="text-xs flex items-start justify-between gap-2">
-                            <p className="truncate flex-1" style={{ color: '#e6edf3' }}>{m.meal_name ?? '—'}</p>
+                            <p className="truncate flex-1" style={{ color: '#e6edf3' }}>{m.meal_name ?? 'â€”'}</p>
                             <div className="flex items-center gap-2 shrink-0">
                               {m.flagged && <Badge color="#f85149">Flagged</Badge>}
                               <span style={{ color: '#7d8fa3' }}>{new Date(m.created_at).toLocaleDateString()}</span>
@@ -582,11 +582,11 @@ export default function UserDrawer({ user, onClose }: Props) {
             </div>
           )}
 
-          {/* ── GOALS ──────────────────────────────────────────────────── */}
+          {/* â”€â”€ GOALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Goals' && (
             <div>
               {goals === null ? (
-                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loading…</p>
+                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p>
               ) : goals.length === 0 ? (
                 <p className="text-sm" style={{ color: '#7d8fa3' }}>No goals.</p>
               ) : (
@@ -632,7 +632,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                         <div className="flex gap-2 mt-2">
                           <input
                             type="text"
-                            placeholder="Add a note…"
+                            placeholder="Add a noteâ€¦"
                             value={newGoalNote[g.id] ?? ''}
                             onChange={e => setNewGoalNote(prev => ({ ...prev, [g.id]: e.target.value }))}
                             style={{ ...inp, fontSize: 12 }}
@@ -668,11 +668,11 @@ export default function UserDrawer({ user, onClose }: Props) {
             </div>
           )}
 
-          {/* ── JOURNAL ────────────────────────────────────────────────── */}
+          {/* â”€â”€ JOURNAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Journal' && (
             <div className="flex flex-col gap-6">
               {journal === null ? (
-                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loading…</p>
+                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p>
               ) : (
                 <>
                   <div className="p-4 rounded" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
@@ -711,7 +711,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                             <p className="text-sm mb-2" style={{ color: '#e6edf3' }}>{e.content ?? '(no content)'}</p>
                             <div className="flex items-center justify-between">
                               <p className="text-xs" style={{ color: '#7d8fa3' }}>
-                                Mood: {e.mood_score ?? '—'}/10 · {new Date(e.created_at).toLocaleString()}
+                                Mood: {e.mood_score ?? 'â€”'}/10 Â· {new Date(e.created_at).toLocaleString()}
                               </p>
                               <div className="flex gap-2">
                                 <button onClick={() => startTransition(async () => {
@@ -746,7 +746,7 @@ export default function UserDrawer({ user, onClose }: Props) {
             </div>
           )}
 
-          {/* ── GARDENER ───────────────────────────────────────────────── */}
+          {/* â”€â”€ GARDENER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Gardener' && (
             <div className="flex flex-col gap-6">
               {/* Phase progression */}
@@ -786,7 +786,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                 <div className="p-4 rounded flex flex-col gap-3" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
                   <p className="text-xs mb-1" style={sh}>Context Snapshot</p>
                   {gardenerContext === null && userModel === null ? (
-                    <p className="text-xs" style={{ color: '#7d8fa3' }}>No context snapshot built yet — run the intelligence pipeline.</p>
+                    <p className="text-xs" style={{ color: '#7d8fa3' }}>No context snapshot built yet â€” run the intelligence pipeline.</p>
                   ) : (
                     <div className="grid grid-cols-2 gap-3">
                       {userModel && (
@@ -794,13 +794,13 @@ export default function UserDrawer({ user, onClose }: Props) {
                           <div>
                             <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Data Confidence</p>
                             <p className="text-sm font-medium" style={{ color: Number(userModel.data_confidence_score ?? 0) < 30 ? '#f85149' : Number(userModel.data_confidence_score ?? 0) < 60 ? '#d29922' : '#3fb950' }}>
-                              {userModel.data_confidence_score != null ? String(userModel.data_confidence_score) : '—'}
+                              {userModel.data_confidence_score != null ? String(userModel.data_confidence_score) : 'â€”'}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Active Day Rate</p>
                             <p className="text-sm font-medium" style={{ color: '#e6edf3' }}>
-                              {userModel.active_day_rate != null ? `${Math.round(Number(userModel.active_day_rate) * 100)}%` : '—'}
+                              {userModel.active_day_rate != null ? `${Math.round(Number(userModel.active_day_rate) * 100)}%` : 'â€”'}
                               {userModel.total_active_days != null && <span style={{ color: '#7d8fa3' }}> ({String(userModel.total_active_days)}d)</span>}
                             </p>
                           </div>
@@ -813,7 +813,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                           <div>
                             <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Voice Register</p>
                             <p className="text-sm font-medium" style={{ color: '#bc8cff' }}>
-                              {userModel.voice_register != null ? String(userModel.voice_register) : '—'}
+                              {userModel.voice_register != null ? String(userModel.voice_register) : 'â€”'}
                             </p>
                           </div>
                           {userModel.key_action_today && (
@@ -834,7 +834,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                             const top = correlations[0]
                             return top ? (
                               <p className="text-xs" style={{ color: '#58a6ff' }}>
-                                {String(top.metric_a ?? '?')} × {String(top.metric_b ?? '?')} — r={Number(top.strength ?? 0).toFixed(2)} ({String(top.data_points ?? '?')} data points)
+                                {String(top.metric_a ?? '?')} Ã— {String(top.metric_b ?? '?')} â€” r={Number(top.strength ?? 0).toFixed(2)} ({String(top.data_points ?? '?')} data points)
                               </p>
                             ) : <p className="text-xs" style={{ color: '#7d8fa3' }}>No correlations yet</p>
                           })()}
@@ -847,7 +847,7 @@ export default function UserDrawer({ user, onClose }: Props) {
 
               {/* Summaries */}
               {gardener === null ? (
-                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loading…</p>
+                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p>
               ) : gardener.length === 0 ? (
                 <p className="text-sm" style={{ color: '#7d8fa3' }}>No summaries.</p>
               ) : (
@@ -872,7 +872,7 @@ export default function UserDrawer({ user, onClose }: Props) {
             </div>
           )}
 
-          {/* ── COMMUNICATIONS ─────────────────────────────────────────── */}
+          {/* â”€â”€ COMMUNICATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Communications' && (
             <div className="flex flex-col gap-6">
               {/* Email */}
@@ -919,27 +919,27 @@ export default function UserDrawer({ user, onClose }: Props) {
               {/* SMS placeholder */}
               <div className="p-4 rounded" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
                 <p className="text-xs font-medium mb-1" style={{ color: '#7d8fa3' }}>SMS</p>
-                <p className="text-xs" style={{ color: '#7d8fa3' }}>SMS requires Twilio integration — not yet configured.</p>
+                <p className="text-xs" style={{ color: '#7d8fa3' }}>SMS requires Twilio integration â€” not yet configured.</p>
               </div>
 
               {/* Admin notes */}
               <div className="flex flex-col gap-3">
                 <p style={sh}>Admin Notes</p>
                 {adminNotes === null ? (
-                  <p className="text-xs" style={{ color: '#7d8fa3' }}>Loading…</p>
+                  <p className="text-xs" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p>
                 ) : (
                   <>
                     {adminNotes.map(n => (
                       <div key={n.id} className="px-3 py-2 rounded" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
                         <p className="text-sm" style={{ color: '#e6edf3' }}>{n.note}</p>
                         <p className="text-xs mt-0.5" style={{ color: '#7d8fa3' }}>
-                          {n.admin_name ?? 'Admin'} · {new Date(n.created_at).toLocaleString()}
+                          {n.admin_name ?? 'Admin'} Â· {new Date(n.created_at).toLocaleString()}
                         </p>
                       </div>
                     ))}
                     <div className="p-4 rounded flex flex-col gap-3" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
                       <textarea
-                        placeholder="Write an internal admin note…"
+                        placeholder="Write an internal admin noteâ€¦"
                         value={adminNoteText}
                         onChange={e => setAdminNoteText(e.target.value)}
                         rows={3}
@@ -973,8 +973,8 @@ export default function UserDrawer({ user, onClose }: Props) {
                       {communications.map(c => (
                         <li key={c.id} className="px-3 py-2 rounded flex items-center justify-between" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
                           <div>
-                            <p className="text-xs font-medium" style={{ color: '#e6edf3' }}>{c.subject ?? c.body?.slice(0, 60) ?? '—'}</p>
-                            <p className="text-xs" style={{ color: '#7d8fa3' }}>{c.type} · {new Date(c.sent_at).toLocaleString()}</p>
+                            <p className="text-xs font-medium" style={{ color: '#e6edf3' }}>{c.subject ?? c.body?.slice(0, 60) ?? 'â€”'}</p>
+                            <p className="text-xs" style={{ color: '#7d8fa3' }}>{c.type} Â· {new Date(c.sent_at).toLocaleString()}</p>
                           </div>
                           <Badge color="#7d8fa3">{c.type}</Badge>
                         </li>
@@ -986,7 +986,7 @@ export default function UserDrawer({ user, onClose }: Props) {
             </div>
           )}
 
-          {/* ── MODERATION ─────────────────────────────────────────────── */}
+          {/* â”€â”€ MODERATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Moderation' && (
             <div className="flex flex-col gap-6">
               {/* Risk assessment */}
@@ -1015,7 +1015,7 @@ export default function UserDrawer({ user, onClose }: Props) {
                     + Issue Warning
                   </button>
                 </div>
-                {warnings === null ? <p className="text-sm" style={{ color: '#7d8fa3' }}>Loading…</p> : warnings.length === 0 ? (
+                {warnings === null ? <p className="text-sm" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p> : warnings.length === 0 ? (
                   <p className="text-sm" style={{ color: '#7d8fa3' }}>No warnings issued.</p>
                 ) : (
                   <ul className="flex flex-col gap-3">
@@ -1051,7 +1051,7 @@ export default function UserDrawer({ user, onClose }: Props) {
               <div>
                 <p className="mb-3" style={sh}>Full Moderation History</p>
                 {modHistory === null ? (
-                  <p className="text-sm" style={{ color: '#7d8fa3' }}>Loading…</p>
+                  <p className="text-sm" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p>
                 ) : modHistory.length === 0 ? (
                   <p className="text-sm" style={{ color: '#7d8fa3' }}>No actions recorded.</p>
                 ) : (
@@ -1069,17 +1069,17 @@ export default function UserDrawer({ user, onClose }: Props) {
             </div>
           )}
 
-          {/* ── TIMELINE ───────────────────────────────────────────────── */}
+          {/* â”€â”€ TIMELINE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Timeline' && (
             <div>
               {timeline === null ? (
-                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loading…</p>
+                <p className="text-sm" style={{ color: '#7d8fa3' }}>Loadingâ€¦</p>
               ) : timeline.length === 0 ? (
                 <p className="text-sm" style={{ color: '#7d8fa3' }}>No timeline events.</p>
               ) : (
                 <ol className="flex flex-col gap-0">
                   {timeline.map((event, i) => {
-                    const isMilestone = ['★','⭐','✦'].includes(event.icon)
+                    const isMilestone = ['â˜…','â­','âœ¦'].includes(event.icon)
                     return (
                       <li key={i} className="flex gap-4 pb-6 last:pb-0">
                         <div className="flex flex-col items-center shrink-0">
@@ -1103,7 +1103,7 @@ export default function UserDrawer({ user, onClose }: Props) {
             </div>
           )}
 
-          {/* ── SETTINGS ───────────────────────────────────────────────── */}
+          {/* â”€â”€ SETTINGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           {activeTab === 'Settings' && (
             <div className="flex flex-col gap-6">
               {/* Profile info */}
@@ -1112,14 +1112,14 @@ export default function UserDrawer({ user, onClose }: Props) {
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   {[
                     ['ID', user.id],
-                    ['Name', user.full_name ?? '—'],
+                    ['Name', user.full_name ?? 'â€”'],
                     ['Email', user.email],
-                    ['Country', user.country ?? '—'],
-                    ['Plan', user.plan ?? '—'],
-                    ['Stage', user.stage ?? '—'],
+                    ['Country', user.country ?? 'â€”'],
+                    ['Plan', user.plan ?? 'â€”'],
+                    ['Stage', user.stage ?? 'â€”'],
                     ['Streak', `${user.streak ?? 0} days`],
                     ['Points', user.points ?? 0],
-                    ['Status', user.status ?? '—'],
+                    ['Status', user.status ?? 'â€”'],
                     ['Admin', user.is_admin ? 'Yes' : 'No'],
                   ].map(([label, value]) => (
                     <div key={label as string}>
@@ -1233,9 +1233,9 @@ export default function UserDrawer({ user, onClose }: Props) {
           <div className="p-6 rounded-lg flex flex-col gap-4" style={{ background: '#0d1117', border: '1px solid #1a2332', width: 460 }} onClick={e => e.stopPropagation()}>
             <p className="font-semibold" style={{ color: '#e6edf3' }}>Impersonation Link</p>
             <div className="px-3 py-2 rounded text-xs" style={{ background: '#f8514918', border: '1px solid #f8514966', color: '#f85149' }}>
-              ⚠ This link gives full app access as this user and expires in 1 hour. Do not share.
+              âš  This link gives full app access as this user and expires in 1 hour. Do not share.
             </div>
-            {impersonateLoading ? <p className="text-sm" style={{ color: '#7d8fa3' }}>Generating link…</p> : impersonateLink ? (
+            {impersonateLoading ? <p className="text-sm" style={{ color: '#7d8fa3' }}>Generating linkâ€¦</p> : impersonateLink ? (
               <div className="flex flex-col gap-2">
                 <div className="px-3 py-2 rounded text-xs break-all" style={{ background: '#080b0f', border: '1px solid #1a2332', color: '#58a6ff' }}>{impersonateLink}</div>
                 <button onClick={() => navigator.clipboard.writeText(impersonateLink)} className="self-start px-3 py-1.5 rounded text-xs" style={{ background: '#58a6ff22', color: '#58a6ff', border: '1px solid #58a6ff44' }}>Copy Link</button>
@@ -1275,3 +1275,4 @@ export default function UserDrawer({ user, onClose }: Props) {
     </>
   )
 }
+

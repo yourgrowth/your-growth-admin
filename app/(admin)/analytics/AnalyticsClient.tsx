@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import PageHeader from '@/components/ui/PageHeader'
@@ -99,17 +99,17 @@ export default function AnalyticsClient({
         ))}
       </div>
 
-      {/* ── Overview Tab ────────────────────────────────────────────────── */}
+      {/* â”€â”€ Overview Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {tab === 'overview' && (
         <div>
-          <div className="grid grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <StatCard label="DAU" value={dau} sub="Active today" color="#3fb950" />
             <StatCard label="WAU" value={wau} sub="Active this week" color="#58a6ff" />
             <StatCard label="MAU" value={mau} sub="Active this month" color="#bc8cff" />
             <StatCard label="New Signups Today" value={newSignups} color="#39d0d8" />
           </div>
 
-          <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
               <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>Feature Adoption</p>
               <div className="flex flex-col gap-4">
@@ -119,7 +119,7 @@ export default function AnalyticsClient({
                     <div key={label}>
                       <div className="flex justify-between text-xs mb-1.5">
                         <span style={{ color: '#e6edf3' }}>{label}</span>
-                        <span style={{ color: '#7d8fa3' }}>{count === null ? 'no data' : `${count} users · ${pct}%`}</span>
+                        <span style={{ color: '#7d8fa3' }}>{count === null ? 'no data' : `${count} users Â· ${pct}%`}</span>
                       </div>
                       <ProgressBar value={pct ?? 0} color={color} />
                     </div>
@@ -135,7 +135,7 @@ export default function AnalyticsClient({
                   <div key={stage}>
                     <div className="flex justify-between text-xs mb-1.5">
                       <span style={{ color: '#e6edf3' }}>{stage}</span>
-                      <span style={{ color: '#7d8fa3' }}>{count} · {Math.round((count / Math.max(total, 1)) * 100)}%</span>
+                      <span style={{ color: '#7d8fa3' }}>{count} Â· {Math.round((count / Math.max(total, 1)) * 100)}%</span>
                     </div>
                     <ProgressBar value={(count / Math.max(total, 1)) * 100} color="#3fb950" />
                   </div>
@@ -148,14 +148,14 @@ export default function AnalyticsClient({
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>Retention</p>
               <a href="https://app.posthog.com" target="_blank" rel="noreferrer" className="text-xs underline" style={{ color: '#58a6ff' }}>
-                View in PostHog →
+                View in PostHog â†’
               </a>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {['D1', 'D7', 'D30'].map((label) => (
                 <div key={label} className="rounded-lg p-4 flex flex-col gap-2" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
                   <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>{label} Retention</p>
-                  <p className="text-2xl font-bold" style={{ color: '#1a2332' }}>—</p>
+                  <p className="text-2xl font-bold" style={{ color: '#1a2332' }}>â€”</p>
                   <p className="text-xs" style={{ color: '#7d8fa3' }}>Full data in PostHog</p>
                 </div>
               ))}
@@ -164,7 +164,7 @@ export default function AnalyticsClient({
 
           <div className="rounded-lg overflow-hidden" style={{ border: '1px solid #1a2332' }}>
             <div className="px-5 py-4" style={{ background: '#0d1117', borderBottom: '1px solid #1a2332' }}>
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>Cohort Analysis — Last 8 Signup Weeks</p>
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>Cohort Analysis â€” Last 8 Signup Weeks</p>
             </div>
             <table className="w-full text-sm">
               <thead>
@@ -184,7 +184,7 @@ export default function AnalyticsClient({
                       <td className="px-5 py-3" style={{ color: '#e6edf3' }}>{c.signups}</td>
                       <td className="px-5 py-3" style={{ color: '#58a6ff' }}>{c.active}</td>
                       <td className="px-5 py-3 font-medium" style={{ color: c.signups > 0 ? pctColor : '#7d8fa3' }}>
-                        {c.signups > 0 ? `${pct}%` : '—'}
+                        {c.signups > 0 ? `${pct}%` : 'â€”'}
                       </td>
                     </tr>
                   )
@@ -195,19 +195,19 @@ export default function AnalyticsClient({
         </div>
       )}
 
-      {/* ── Gardener Chat Tab ──────────────────────────────────────────────── */}
+      {/* â”€â”€ Gardener Chat Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {tab === 'gardener_chat' && (
         <div>
-          <div className="grid grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <StatCard label="Total Sessions" value={totalChatSessions} color="#3fb950" />
             <StatCard label="Total Messages" value={totalChatMessages} color="#58a6ff" />
             <StatCard label="Avg Msgs / Session" value={avgMessagesPerSession.toFixed(1)} color="#bc8cff" />
             <StatCard label="Drop-Off Rate" value={`${chatDropOffPct}%`} sub="1 message only" color={chatDropOffPct > 50 ? '#f85149' : '#d29922'} />
           </div>
 
-          <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>Messages Per Day — Last 30 Days</p>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>Messages Per Day â€” Last 30 Days</p>
               {chatDays.length > 0 ? (
                 <>
                   <MiniBarChart rows={chatDays as Record<string, unknown>[]} valueKey="messages" labelKey="date" color="#3fb950" />
@@ -222,7 +222,7 @@ export default function AnalyticsClient({
             </div>
 
             <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>Sessions Per Day — Last 30 Days</p>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>Sessions Per Day â€” Last 30 Days</p>
               {chatDays.length > 0 ? (
                 <>
                   <MiniBarChart rows={chatDays as Record<string, unknown>[]} valueKey="sessions" labelKey="date" color="#bc8cff" />
@@ -237,7 +237,7 @@ export default function AnalyticsClient({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
               <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>Top First Messages</p>
               {topFirstMessages.length === 0 ? (
@@ -247,9 +247,9 @@ export default function AnalyticsClient({
                   {topFirstMessages.map((msg, i) => (
                     <div key={i} className="flex items-start justify-between gap-3">
                       <p className="text-xs flex-1" style={{ color: '#e6edf3' }}>
-                        &ldquo;{msg.content.length > 80 ? msg.content.slice(0, 80) + '…' : msg.content}&rdquo;
+                        &ldquo;{msg.content.length > 80 ? msg.content.slice(0, 80) + 'â€¦' : msg.content}&rdquo;
                       </p>
-                      <span className="text-xs shrink-0 font-medium" style={{ color: '#7d8fa3' }}>×{msg.count}</span>
+                      <span className="text-xs shrink-0 font-medium" style={{ color: '#7d8fa3' }}>Ã—{msg.count}</span>
                     </div>
                   ))}
                 </div>
@@ -260,7 +260,7 @@ export default function AnalyticsClient({
               <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>Performance</p>
               <div className="flex flex-col gap-4">
                 {[
-                  { label: 'Avg response time', value: avgResponseMs > 0 ? `${(avgResponseMs / 1000).toFixed(1)}s` : '—', color: avgResponseMs > 10000 ? '#f85149' : '#3fb950' },
+                  { label: 'Avg response time', value: avgResponseMs > 0 ? `${(avgResponseMs / 1000).toFixed(1)}s` : 'â€”', color: avgResponseMs > 10000 ? '#f85149' : '#3fb950' },
                   { label: 'Single-message drop-off', value: `${chatDropOffPct}%`, color: chatDropOffPct > 60 ? '#f85149' : chatDropOffPct > 35 ? '#d29922' : '#3fb950' },
                   { label: 'Avg messages per session', value: avgMessagesPerSession.toFixed(1), color: '#58a6ff' },
                 ].map(({ label, value, color }) => (
@@ -275,10 +275,10 @@ export default function AnalyticsClient({
         </div>
       )}
 
-      {/* ── Insights Page Tab ──────────────────────────────────────────────── */}
+      {/* â”€â”€ Insights Page Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {tab === 'insights' && (
         <div>
-          <div className="grid grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <StatCard label="Insights Views (30d)" value={insightViews30d} color="#3fb950" />
             <StatCard label="Views Yesterday" value={insightViewsYesterday} color="#58a6ff" />
             <StatCard label="Pattern Card Tap Rate" value={`${patternTapRate}%`} color="#bc8cff" sub="tapped a pattern card" />
@@ -293,11 +293,11 @@ export default function AnalyticsClient({
                 'Full funnel data (scroll depth, time on page) is available in PostHog.',
                 'Insights page views are tracked in page_views where page_name = \'gardener_insights\'.',
               ].map((note, i) => (
-                <p key={i} className="text-xs" style={{ color: '#7d8fa3' }}>• {note}</p>
+                <p key={i} className="text-xs" style={{ color: '#7d8fa3' }}>â€¢ {note}</p>
               ))}
             </div>
             <a href="https://app.posthog.com" target="_blank" rel="noreferrer" className="inline-block mt-4 text-xs underline" style={{ color: '#58a6ff' }}>
-              Full funnel in PostHog →
+              Full funnel in PostHog â†’
             </a>
           </div>
         </div>
@@ -305,3 +305,4 @@ export default function AnalyticsClient({
     </div>
   )
 }
+

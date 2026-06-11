@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import StatCard from '@/components/ui/StatCard'
@@ -94,7 +94,7 @@ export default function FeatureFlagsClient({ flags: initialFlags, overrides: ini
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <StatCard label="Total Flags" value={flags.length} color="#e6edf3" />
         <StatCard label="Enabled" value={enabledCount} color="#3fb950" />
         <StatCard label="User Overrides" value={overrides.length} color="#58a6ff" />
@@ -145,7 +145,7 @@ export default function FeatureFlagsClient({ flags: initialFlags, overrides: ini
                 {flag.updated_at && (
                   <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>
                     Updated {new Date(flag.updated_at).toLocaleDateString()}
-                    {flag.updated_by && ` by ${flag.updated_by.slice(0, 8)}…`}
+                    {flag.updated_by && ` by ${flag.updated_by.slice(0, 8)}â€¦`}
                   </p>
                 )}
               </div>
@@ -189,7 +189,7 @@ export default function FeatureFlagsClient({ flags: initialFlags, overrides: ini
                 onChange={(e) => setSelectedUserId(e.target.value)}
                 style={{ ...inp, width: 220, color: selectedUserId ? '#e6edf3' : '#7d8fa3' }}
               >
-                <option value="">Select user…</option>
+                <option value="">Select userâ€¦</option>
                 {profiles.map((p) => (
                   <option key={p.id} value={p.id}>{p.full_name ?? p.id.slice(0, 8)}</option>
                 ))}
@@ -199,7 +199,7 @@ export default function FeatureFlagsClient({ flags: initialFlags, overrides: ini
                 onChange={(e) => setSelectedFlag(e.target.value)}
                 style={{ ...inp, width: 200, color: selectedFlag ? '#e6edf3' : '#7d8fa3' }}
               >
-                <option value="">Select flag…</option>
+                <option value="">Select flagâ€¦</option>
                 {flags.map((f) => (
                   <option key={f.id} value={f.name}>{f.name}</option>
                 ))}
@@ -213,7 +213,7 @@ export default function FeatureFlagsClient({ flags: initialFlags, overrides: ini
                 <option value="false">Disabled</option>
               </select>
               <Btn variant="primary" disabled={isPending || !selectedUserId || !selectedFlag} onClick={handleAddOverride}>
-                {isPending ? 'Saving…' : 'Set Override'}
+                {isPending ? 'Savingâ€¦' : 'Set Override'}
               </Btn>
             </div>
           </div>
@@ -239,7 +239,7 @@ export default function FeatureFlagsClient({ flags: initialFlags, overrides: ini
                   {overrides.map((o, i) => (
                     <tr key={o.id} style={{ background: '#080b0f', borderBottom: i < overrides.length - 1 ? '1px solid #1a2332' : undefined }}>
                       <td className="px-4 py-2.5 text-xs" style={{ color: '#e6edf3' }}>
-                        {profileMap.get(o.user_id) ?? o.user_id.slice(0, 8) + '…'}
+                        {profileMap.get(o.user_id) ?? o.user_id.slice(0, 8) + 'â€¦'}
                       </td>
                       <td className="px-4 py-2.5 font-mono text-xs" style={{ color: '#bc8cff' }}>{o.flag_name}</td>
                       <td className="px-4 py-2.5">
@@ -264,3 +264,4 @@ export default function FeatureFlagsClient({ flags: initialFlags, overrides: ini
     </div>
   )
 }
+

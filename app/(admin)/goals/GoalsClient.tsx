@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo } from 'react'
 import PageHeader from '@/components/ui/PageHeader'
@@ -55,7 +55,7 @@ export default function GoalsClient({ goals, activeCount, completedCount, garden
     <div>
       <PageHeader title="Goals" subtitle="User goals and progress" />
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <StatCard label="Total Active Goals" value={activeCount} color="#58a6ff" />
         <StatCard label="Completed Goals" value={completedCount} color="#3fb950" />
         <StatCard label="Gardener Linked" value={gardenerCount} color="#bc8cff" />
@@ -141,7 +141,7 @@ export default function GoalsClient({ goals, activeCount, completedCount, garden
                         {goal.category}
                       </span>
                     ) : (
-                      <span style={{ color: '#7d8fa3' }}>—</span>
+                      <span style={{ color: '#7d8fa3' }}>â€”</span>
                     )}
                   </td>
                   <td className="px-4 py-3 min-w-[120px]">
@@ -172,7 +172,7 @@ export default function GoalsClient({ goals, activeCount, completedCount, garden
                         Linked
                       </span>
                     ) : (
-                      <span style={{ color: '#1a2332' }}>—</span>
+                      <span style={{ color: '#1a2332' }}>â€”</span>
                     )}
                   </td>
                 </tr>
@@ -184,3 +184,4 @@ export default function GoalsClient({ goals, activeCount, completedCount, garden
     </div>
   )
 }
+

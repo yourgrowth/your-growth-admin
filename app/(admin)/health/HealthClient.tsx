@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -110,7 +110,7 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
 
       {tab === 'safety' && (
         <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard label="Total Safety Flags" value={safetyStats.total} color="#f85149" />
             <StatCard label="Crisis Events" value={safetyStats.crisisTotal} color="#f85149" sub="all time" />
             <StatCard label="Rate Limit Hits" value={safetyStats.rateLimitTotal} color="#d29922" />
@@ -122,13 +122,13 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
             <div className="px-4 py-3" style={{ background: '#0d1117', borderBottom: '1px solid #1a2332' }}>
               <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>Crisis Resource Coverage</p>
             </div>
-            <div className="grid grid-cols-3 gap-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
               {countryList.map((c, i) => {
                 const covered = COVERED_COUNTRIES.has(c.country)
                 return (
                   <div key={c.country} className="px-4 py-3 flex items-center justify-between" style={{ background: '#080b0f', borderBottom: i < countryList.length - 1 ? '1px solid #1a2332' : undefined, borderRight: i % 3 < 2 ? '1px solid #1a2332' : undefined }}>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs" style={{ color: covered ? '#3fb950' : '#f85149' }}>{covered ? '✓' : '✗'}</span>
+                      <span className="text-xs" style={{ color: covered ? '#3fb950' : '#f85149' }}>{covered ? 'âœ“' : 'âœ—'}</span>
                       <span className="text-sm font-medium" style={{ color: '#e6edf3' }}>{c.country}</span>
                     </div>
                     <span className="text-xs" style={{ color: '#7d8fa3' }}>{c.count} users</span>
@@ -184,15 +184,15 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
                           color: f.layer_caught === 'crisis' ? '#f85149' : '#d29922',
                           border: `1px solid ${f.layer_caught === 'crisis' ? '#f85149' : '#d29922'}`,
                         }}>
-                          {f.layer_caught ?? '—'}
+                          {f.layer_caught ?? 'â€”'}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{f.trigger_type ?? '—'}</td>
+                      <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{f.trigger_type ?? 'â€”'}</td>
                       <td className="px-4 py-2.5 font-mono text-xs" style={{ color: '#7d8fa3' }}>
-                        {f.user_id ? f.user_id.slice(0, 8) + '…' : 'anon'}
+                        {f.user_id ? f.user_id.slice(0, 8) + 'â€¦' : 'anon'}
                       </td>
                       <td className="px-4 py-2.5 text-xs max-w-64 truncate" style={{ color: '#7d8fa3' }}>
-                        {f.input_snippet ?? '—'}
+                        {f.input_snippet ?? 'â€”'}
                       </td>
                     </tr>
                   ))}
@@ -205,7 +205,7 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
 
       {tab === 'health' && <>
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label="Total Errors Today" value={stats.totalErrorsToday} color="#f85149" />
         <StatCard label="Unresolved Errors" value={stats.unresolvedErrors} color="#d29922" />
         <StatCard label="Edge Function Failures" value={stats.edgeFunctionFailures} color="#bc8cff" />
@@ -261,7 +261,7 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
                   <p className="text-sm truncate" style={{ color: '#e6edf3' }}>{error.message ?? 'No message'}</p>
                   <p className="text-xs mt-0.5" style={{ color: '#7d8fa3' }}>
                     {new Date(error.created_at).toLocaleString()}
-                    {error.user_id && ` · User: ${error.user_id.slice(0, 8)}…`}
+                    {error.user_id && ` Â· User: ${error.user_id.slice(0, 8)}â€¦`}
                   </p>
                 </div>
                 {!error.resolved && (
@@ -304,14 +304,14 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
                 <tr key={stat.name} style={{ borderBottom: '1px solid #1a2332' }}>
                   <td className="px-4 py-3" style={{ color: '#e6edf3' }}>{stat.name}</td>
                   <td className="px-4 py-3 text-xs" style={{ color: '#7d8fa3' }}>{new Date(stat.lastCalled).toLocaleString()}</td>
-                  <td className="px-4 py-3 text-xs" style={{ color: '#7d8fa3' }}>{stat.avgDuration != null ? `${stat.avgDuration}ms` : '—'}</td>
+                  <td className="px-4 py-3 text-xs" style={{ color: '#7d8fa3' }}>{stat.avgDuration != null ? `${stat.avgDuration}ms` : 'â€”'}</td>
                   <td className="px-4 py-3">
                     <span className="text-xs font-medium" style={{ color: stat.successRate >= 90 ? '#3fb950' : stat.successRate >= 70 ? '#d29922' : '#f85149' }}>
                       {stat.successRate}%
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs truncate max-w-48" style={{ color: stat.lastError ? '#f85149' : '#7d8fa3' }}>
-                    {stat.lastError ?? '—'}
+                    {stat.lastError ?? 'â€”'}
                   </td>
                 </tr>
               ))}
@@ -323,7 +323,7 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
       {/* System status */}
       <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
         <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>System Status</p>
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {SERVICES.map(service => {
             const hasIncident = affectedService(service)
             const activeIncident = incidents.find(i => i.service_name === service)
@@ -390,7 +390,7 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
             style={{ background: '#0d1117', border: '1px solid #1a2332', width: 400, ...T }}
             onClick={e => e.stopPropagation()}
           >
-            <p className="font-semibold" style={{ color: '#e6edf3' }}>Report Incident — {incidentModal}</p>
+            <p className="font-semibold" style={{ color: '#e6edf3' }}>Report Incident â€” {incidentModal}</p>
             <textarea
               placeholder="Describe the incident..."
               value={incidentDesc}
@@ -430,3 +430,4 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
     </div>
   )
 }
+

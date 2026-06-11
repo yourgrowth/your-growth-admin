@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import PageHeader from '@/components/ui/PageHeader'
 import StatCard from '@/components/ui/StatCard'
@@ -85,7 +85,7 @@ export default async function DashboardPage() {
     <div>
       <PageHeader title="Command Centre" subtitle="Overview of your Bonsai app" />
 
-      <div className="grid grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         <StatCard label="Total Users" value={totalUsers ?? 0} color="#e6edf3" />
         <StatCard label="Pro Subscribers" value={proUsers ?? 0} color="#bc8cff" />
         <StatCard label="Published Content" value={publishedContent ?? 0} color="#58a6ff" />
@@ -93,7 +93,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* New stat cards row */}
-      <div className="grid grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         <StatCard label="Gardener Chats Today" value={chatsToday} color="#3fb950" />
         <StatCard
           label="Safety Flags Today"
@@ -103,10 +103,10 @@ export default async function DashboardPage() {
         />
         <StatCard label="Active Snapshots (24h)" value={activeSnapshots} color="#bc8cff" />
         <StatCard label="Returning from Gap" value={returningUsers} color="#58a6ff" />
-        <StatCard label="Avg Data Confidence" value={avgConfidence > 0 ? `${avgConfidence}%` : '—'} color="#39d0d8" />
+        <StatCard label="Avg Data Confidence" value={avgConfidence > 0 ? `${avgConfidence}%` : 'â€”'} color="#39d0d8" />
       </div>
 
-      <div className="grid grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="rounded-lg overflow-hidden" style={{ border: '1px solid #1a2332' }}>
           <div className="px-4 py-3" style={{ background: '#0d1117', borderBottom: '1px solid #1a2332' }}>
             <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>
@@ -136,8 +136,8 @@ export default async function DashboardPage() {
                     borderBottom: i < (recentUsers?.length ?? 0) - 1 ? '1px solid #1a2332' : undefined,
                   }}
                 >
-                  <td className="px-4 py-2.5" style={{ color: '#e6edf3' }}>{u.full_name ?? '—'}</td>
-                  <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{u.stage ?? '—'}</td>
+                  <td className="px-4 py-2.5" style={{ color: '#e6edf3' }}>{u.full_name ?? 'â€”'}</td>
+                  <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{u.stage ?? 'â€”'}</td>
                   <td className="px-4 py-2.5">
                     <Badge color={u.plan === 'Pro' ? '#bc8cff' : '#7d8fa3'}>{u.plan ?? 'free'}</Badge>
                   </td>
@@ -183,7 +183,7 @@ export default async function DashboardPage() {
         <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>
           System Health
         </p>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {['Supabase', 'Edge Functions', 'RevenueCat', 'Mux'].map((service) => (
             <div
               key={service}
@@ -219,7 +219,7 @@ export default async function DashboardPage() {
                     {crisisToday} crisis event{crisisToday > 1 ? 's' : ''} in the last 24h
                   </p>
                   <p className="text-xs mt-0.5" style={{ color: '#7d8fa3' }}>
-                    Anonymised count only — view Safety page for details
+                    Anonymised count only â€” view Safety page for details
                   </p>
                 </div>
                 <Link
@@ -227,7 +227,7 @@ export default async function DashboardPage() {
                   className="px-3 py-1.5 rounded text-xs"
                   style={{ background: 'transparent', border: '1px solid #f85149', color: '#f85149' }}
                 >
-                  View Safety →
+                  View Safety â†’
                 </Link>
               </div>
             )}
@@ -238,7 +238,7 @@ export default async function DashboardPage() {
                     {alertInactivePro} Pro user{alertInactivePro > 1 ? 's' : ''} with 0 activity in 14+ days
                   </p>
                   <p className="text-xs mt-0.5" style={{ color: '#7d8fa3' }}>
-                    Active subscription but not using the app — churn risk
+                    Active subscription but not using the app â€” churn risk
                   </p>
                 </div>
                 <Link
@@ -246,7 +246,7 @@ export default async function DashboardPage() {
                   className="px-3 py-1.5 rounded text-xs"
                   style={{ background: 'transparent', border: '1px solid #d29922', color: '#d29922' }}
                 >
-                  View Subscriptions →
+                  View Subscriptions â†’
                 </Link>
               </div>
             )}
@@ -256,3 +256,4 @@ export default async function DashboardPage() {
     </div>
   )
 }
+

@@ -1,21 +1,21 @@
-/*
+﻿/*
  * PostHog events required in the main React Native app to power this dashboard for real.
  * Fire these using the PostHog React Native SDK. Once volume justifies it, wire them to a
  * posthog_events mirror table in Supabase via a PostHog webhook.
  *
- * feature_gate_hit          — { feature: string, user_id: string, plan: 'free' }
+ * feature_gate_hit          â€” { feature: string, user_id: string, plan: 'free' }
  *   Fired whenever a Free user hits a paywalled feature.
  *
- * upgrade_prompt_shown      — { trigger: string, user_id: string, streak: number }
+ * upgrade_prompt_shown      â€” { trigger: string, user_id: string, streak: number }
  *   Fired when an upgrade prompt is surfaced to a Free user.
  *
- * upgrade_prompt_converted  — { user_id: string, from_plan: 'free', to_plan: string }
+ * upgrade_prompt_converted  â€” { user_id: string, from_plan: 'free', to_plan: string }
  *   Fired when a user completes a purchase after seeing an upgrade prompt.
  *
- * churn_risk_reengaged      — { user_id: string, days_inactive: number }
+ * churn_risk_reengaged      â€” { user_id: string, days_inactive: number }
  *   Fired when a previously-inactive paid user opens the app again.
  *
- * ai_call_made              — { user_id: string, plan: string, feature: string, calls_used: number, calls_remaining: number }
+ * ai_call_made              â€” { user_id: string, plan: string, feature: string, calls_used: number, calls_remaining: number }
  *   Fired on every AI Gardener / AI feature invocation.
  */
 
@@ -27,7 +27,7 @@ import UpgradeButton from './UpgradeButton'
 import { getUpgradeCandidates, getChurnRisks, getRevenueSignals } from '@/lib/queries/growth'
 
 // Feature gate hit counts sourced from ai_usage_log and user activity tables.
-// Conversion rates require PostHog event tracking — show placeholder until wired.
+// Conversion rates require PostHog event tracking â€” show placeholder until wired.
 
 const FREE_AI_LIMIT = 10
 const GROWTH_AI_LIMIT = 50
@@ -109,7 +109,7 @@ export default async function GrowthPage() {
     { feature: 'Goal tracking', free_hits: countUnique((goalsResult as { data: { user_id: string }[] | null }).data) },
   ]
 
-  // Build log-frequency map: logs in last 7 days per user → avg per day
+  // Build log-frequency map: logs in last 7 days per user â†’ avg per day
   const logCountMap: Record<string, number> = {}
   ;(journalData ?? []).forEach((e) => {
     logCountMap[e.user_id] = (logCountMap[e.user_id] ?? 0) + 1
@@ -152,7 +152,7 @@ export default async function GrowthPage() {
         subtitle="Upgrade opportunities, churn risks, and API cost signals"
       />
 
-      {/* ── Section A — Upgrade Opportunity Queue ──────────────────────── */}
+      {/* â”€â”€ Section A â€” Upgrade Opportunity Queue â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="mb-10">
         <h2
           className="text-xs font-semibold uppercase tracking-wider mb-4"
@@ -195,7 +195,7 @@ export default async function GrowthPage() {
                     }}
                   >
                     <td className="px-4 py-3" style={{ color: '#e6edf3' }}>
-                      {u.username ?? '—'}
+                      {u.username ?? 'â€”'}
                     </td>
                     <td className="px-4 py-3">
                       <Badge color="#7d8fa3">{u.plan ?? 'free'}</Badge>
@@ -237,7 +237,7 @@ export default async function GrowthPage() {
         </div>
       </section>
 
-      {/* ── Section B — Churn Risk Monitor ─────────────────────────────── */}
+      {/* â”€â”€ Section B â€” Churn Risk Monitor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="mb-10">
         <h2
           className="text-xs font-semibold uppercase tracking-wider mb-4"
@@ -283,7 +283,7 @@ export default async function GrowthPage() {
                       }}
                     >
                       <td className="px-4 py-3" style={{ color: '#e6edf3' }}>
-                        {u.username ?? '—'}
+                        {u.username ?? 'â€”'}
                       </td>
                       <td className="px-4 py-3">
                         <Badge color={isPro ? '#bc8cff' : '#58a6ff'}>{u.plan}</Badge>
@@ -303,7 +303,7 @@ export default async function GrowthPage() {
                       </td>
                       <td className="px-4 py-3" style={{ color: '#e6edf3' }}>
                         {u.ai_calls_used_this_month ?? 0} /{' '}
-                        {isPro ? '∞' : callLimit}
+                        {isPro ? 'âˆž' : callLimit}
                       </td>
                       <td className="px-4 py-3">
                         <InlineBar
@@ -332,7 +332,7 @@ export default async function GrowthPage() {
         </div>
       </section>
 
-      {/* ── Section C — Feature Gate Performance ───────────────────────── */}
+      {/* â”€â”€ Section C â€” Feature Gate Performance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="mb-10">
         <h2
           className="text-xs font-semibold uppercase tracking-wider mb-4"
@@ -340,7 +340,7 @@ export default async function GrowthPage() {
         >
           Feature Gate Performance
         </h2>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {featureGateData.map((item) => (
             <div
               key={item.feature}
@@ -354,7 +354,7 @@ export default async function GrowthPage() {
                 {item.free_hits.toLocaleString()}
               </p>
               <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>
-                unique users · last 30d
+                unique users Â· last 30d
               </p>
               <p className="text-sm" style={{ color: '#7d8fa3' }}>
                 Conversion: <span style={{ color: '#d29922' }}>Tracking soon</span>
@@ -364,7 +364,7 @@ export default async function GrowthPage() {
         </div>
       </section>
 
-      {/* ── Section D — Revenue & API Cost Signals ─────────────────────── */}
+      {/* â”€â”€ Section D â€” Revenue & API Cost Signals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section>
         <h2
           className="text-xs font-semibold uppercase tracking-wider mb-4"
@@ -372,9 +372,9 @@ export default async function GrowthPage() {
         >
           Revenue & API Cost Signals
         </h2>
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <StatCard
-            label="Free → Paid Conversion"
+            label="Free â†’ Paid Conversion"
             value={`${conversionRate}%`}
             color="#3fb950"
           />
@@ -387,7 +387,7 @@ export default async function GrowthPage() {
           <StatCard
             label="At-Risk MRR"
             value={`$${atRiskMRR}`}
-            sub="churn score >70 × $7.99"
+            sub="churn score >70 Ã— $7.99"
             color="#f85149"
           />
           <StatCard label="New Paid (30d)" value={signals.newPaid30d} color="#d29922" />
@@ -411,3 +411,4 @@ export default async function GrowthPage() {
     </div>
   )
 }
+

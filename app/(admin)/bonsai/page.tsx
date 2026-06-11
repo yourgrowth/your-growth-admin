@@ -1,4 +1,4 @@
-import { createAdminClient } from '@/lib/supabase/admin'
+﻿import { createAdminClient } from '@/lib/supabase/admin'
 import PageHeader from '@/components/ui/PageHeader'
 import StatCard from '@/components/ui/StatCard'
 import ProgressBar from '@/components/ui/ProgressBar'
@@ -127,7 +127,7 @@ export default async function BonsaiPage() {
     <div>
       <PageHeader title="Bonsai" subtitle="Points, stages, and tree health across all users" />
 
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard label="Total Users" value={total} color="#e6edf3" />
         <StatCard label="Avg Daily Points (Active)" value={avgDailyPoints} color="#3fb950" />
         <StatCard label="At Daily Cap %" value={`${capPct}%`} color="#d29922" />
@@ -135,7 +135,7 @@ export default async function BonsaiPage() {
       </div>
 
       {/* Stage Distribution */}
-      <div className="grid grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
           <div className="flex items-center justify-between mb-4">
             <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>
@@ -152,13 +152,13 @@ export default async function BonsaiPage() {
                 <div key={stage}>
                   <div className="flex justify-between text-xs mb-1.5">
                     <span style={{ color: '#e6edf3' }}>
-                      Stage {stage} — {STAGE_NAMES[stage]}
+                      Stage {stage} â€” {STAGE_NAMES[stage]}
                       <span className="ml-2 font-mono" style={{ color: '#7d8fa3' }}>
                         {threshold.toLocaleString()} pts
                       </span>
                     </span>
                     <span style={{ color: '#7d8fa3' }}>
-                      {count} · {pct}%
+                      {count} Â· {pct}%
                     </span>
                   </div>
                   <ProgressBar value={pct} color={stage >= 6 ? '#bc8cff' : stage >= 4 ? '#58a6ff' : '#3fb950'} />
@@ -180,14 +180,14 @@ export default async function BonsaiPage() {
               <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>cap = 100 pts/day</p>
             </div>
             <div className="rounded-lg p-4" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
-              <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Hitting daily cap (≥90 pts/day avg)</p>
+              <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Hitting daily cap (â‰¥90 pts/day avg)</p>
               <p className="text-2xl font-bold" style={{ color: '#d29922' }}>{capPct}%</p>
               <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>{capHitters} of {active.length} active users</p>
             </div>
             <div className="rounded-lg p-4" style={{ background: '#080b0f', border: '1px solid #f85149' }}>
               <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>At-risk Pro users</p>
               <p className="text-2xl font-bold" style={{ color: '#f85149' }}>{atRisk.length}</p>
-              <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>Pro plan, no activity in 5+ days → decay approaching</p>
+              <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>Pro plan, no activity in 5+ days â†’ decay approaching</p>
             </div>
           </div>
         </div>
@@ -198,7 +198,7 @@ export default async function BonsaiPage() {
         <div className="rounded-lg overflow-hidden mb-8" style={{ border: '1px solid #f85149' }}>
           <div className="px-4 py-3" style={{ background: '#0d1117', borderBottom: '1px solid #f85149' }}>
             <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#f85149' }}>
-              At-Risk Pro Users — Points Decay Approaching
+              At-Risk Pro Users â€” Points Decay Approaching
             </p>
           </div>
           <table className="w-full text-sm">
@@ -218,9 +218,9 @@ export default async function BonsaiPage() {
                   : null
                 return (
                   <tr key={u.id} style={{ background: '#080b0f', borderBottom: i < atRisk.length - 1 ? '1px solid #1a2332' : undefined }}>
-                    <td className="px-4 py-2.5" style={{ color: '#e6edf3' }}>{u.full_name ?? '—'}</td>
+                    <td className="px-4 py-2.5" style={{ color: '#e6edf3' }}>{u.full_name ?? 'â€”'}</td>
                     <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>
-                      Stage {u.stage ?? 1} — {STAGE_NAMES[Number(u.stage ?? 1)]}
+                      Stage {u.stage ?? 1} â€” {STAGE_NAMES[Number(u.stage ?? 1)]}
                     </td>
                     <td className="px-4 py-2.5 font-medium" style={{ color: '#3fb950' }}>
                       {(u.total_points ?? 0).toLocaleString()}
@@ -229,7 +229,7 @@ export default async function BonsaiPage() {
                       {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString() : 'Never'}
                     </td>
                     <td className="px-4 py-2.5 font-medium" style={{ color: daysInactive && daysInactive >= 7 ? '#f85149' : '#d29922' }}>
-                      {daysInactive ?? '—'}d
+                      {daysInactive ?? 'â€”'}d
                     </td>
                   </tr>
                 )
@@ -242,11 +242,11 @@ export default async function BonsaiPage() {
       {/* Retention Signal */}
       <div className="rounded-lg p-5 mb-8" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
         <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>
-          Retention Signal — Avg Days Retained per Stage
+          Retention Signal â€” Avg Days Retained per Stage
         </p>
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="rounded-lg p-4" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
-            <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Stage 1–2 churn rate (inactive &gt;7d after 14d)</p>
+            <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Stage 1â€“2 churn rate (inactive &gt;7d after 14d)</p>
             <p className="text-2xl font-bold" style={{ color: lowStageChurnRate > 50 ? '#f85149' : '#d29922' }}>
               {lowStageChurnRate}%
             </p>
@@ -292,3 +292,4 @@ export default async function BonsaiPage() {
     </div>
   )
 }
+

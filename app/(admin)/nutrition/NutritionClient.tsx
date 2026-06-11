@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import PageHeader from '@/components/ui/PageHeader'
@@ -68,14 +68,14 @@ export default function NutritionClient({ meals, aiUsageStats, productAnalysisSt
 
       {tab === 'ai_usage' && (
         <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard label="Total Calls (30d)" value={aiUsageStats.totalCalls} color="#3fb950" />
             <StatCard label="Estimated Cost" value={`$${aiUsageStats.estimatedCost.toFixed(2)}`} color="#d29922" />
-            <StatCard label="Avg Response" value={aiUsageStats.avgDurationMs > 0 ? `${(aiUsageStats.avgDurationMs / 1000).toFixed(1)}s` : '—'} color="#58a6ff" />
+            <StatCard label="Avg Response" value={aiUsageStats.avgDurationMs > 0 ? `${(aiUsageStats.avgDurationMs / 1000).toFixed(1)}s` : 'â€”'} color="#58a6ff" />
             <StatCard label="Error Rate" value={`${aiUsageStats.errorRate}%`} color={aiUsageStats.errorRate > 5 ? '#f85149' : '#3fb950'} />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
               <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>Feature Breakdown</p>
               <div className="flex flex-col gap-3">
@@ -118,7 +118,7 @@ export default function NutritionClient({ meals, aiUsageStats, productAnalysisSt
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
               <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#7d8fa3' }}>Product Analyses Cached</p>
               <p className="text-2xl font-bold" style={{ color: '#e6edf3' }}>{productAnalysisStats.totalAnalysed}</p>
@@ -138,8 +138,8 @@ export default function NutritionClient({ meals, aiUsageStats, productAnalysisSt
 
       {tab === 'food_quality' && (
         <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-4 gap-4">
-            <StatCard label="Avg Quality Score (30d)" value={foodQualityStats.totalLogs > 0 ? foodQualityStats.avgQualityScore : '—'} color={foodQualityStats.avgQualityScore >= 70 ? '#3fb950' : foodQualityStats.avgQualityScore >= 50 ? '#d29922' : '#f85149'} />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard label="Avg Quality Score (30d)" value={foodQualityStats.totalLogs > 0 ? foodQualityStats.avgQualityScore : 'â€”'} color={foodQualityStats.avgQualityScore >= 70 ? '#3fb950' : foodQualityStats.avgQualityScore >= 50 ? '#d29922' : '#f85149'} />
             <StatCard label="Quality Logs" value={foodQualityStats.totalLogs} color="#58a6ff" />
             <StatCard label="High-Additive Users" value={`${foodQualityStats.highAdditivePct}%`} color={foodQualityStats.highAdditivePct > 30 ? '#f85149' : '#d29922'} />
             <StatCard label="Avg Whole Foods/Day" value={foodQualityStats.wholeFoodPct} color="#3fb950" />
@@ -149,15 +149,15 @@ export default function NutritionClient({ meals, aiUsageStats, productAnalysisSt
             <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: '#7d8fa3' }}>Quality Score Distribution</p>
             <div className="flex flex-col gap-3">
               {[
-                { label: 'Excellent (80–100)', color: '#3fb950' },
-                { label: 'Good (60–79)', color: '#58a6ff' },
-                { label: 'Fair (40–59)', color: '#d29922' },
+                { label: 'Excellent (80â€“100)', color: '#3fb950' },
+                { label: 'Good (60â€“79)', color: '#58a6ff' },
+                { label: 'Fair (40â€“59)', color: '#d29922' },
                 { label: 'Poor (<40)', color: '#f85149' },
               ].map(({ label, color }) => (
                 <div key={label}>
                   <div className="flex justify-between text-xs mb-1">
                     <span style={{ color: '#e6edf3' }}>{label}</span>
-                    <span style={{ color: '#7d8fa3' }}>—</span>
+                    <span style={{ color: '#7d8fa3' }}>â€”</span>
                   </div>
                   <ProgressBar value={0} color={color} />
                 </div>
@@ -235,7 +235,7 @@ export default function NutritionClient({ meals, aiUsageStats, productAnalysisSt
               </div>
             </div>
             <p className="text-sm mb-4 leading-relaxed" style={{ color: '#e6edf3' }}>
-              {meal.suggestion ?? '—'}
+              {meal.suggestion ?? 'â€”'}
             </p>
             <div className="flex gap-2">
               <Btn
@@ -268,3 +268,4 @@ export default function NutritionClient({ meals, aiUsageStats, productAnalysisSt
     </div>
   )
 }
+

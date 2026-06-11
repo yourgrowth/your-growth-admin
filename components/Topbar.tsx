@@ -35,7 +35,12 @@ const PAGE_META: Record<string, { title: string; subtitle: string }> = {
 
 type TimeRange = '24h' | '7d' | '30d' | '90d'
 
-export default function Topbar() {
+type TopbarProps = {
+  onMenuToggle?: () => void
+  isMobile?: boolean
+}
+
+export default function Topbar({ onMenuToggle, isMobile }: TopbarProps) {
   const pathname = usePathname()
   const [range, setRange] = useState<TimeRange>('7d')
   const [time, setTime] = useState('')
@@ -74,43 +79,62 @@ export default function Topbar() {
       gap: 16,
     }}>
       {/* Title */}
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 17, fontWeight: 700, color: C.text, lineHeight: 1.2 }}>{meta.title}</div>
-        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>{meta.subtitle}</div>
+      {/* Hamburger — mobile only */}
+      {isMobile && (
+        <button
+          onClick={onMenuToggle}
+          style={{
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            padding: '6px 8px', marginLeft: -8, marginRight: 4,
+            display: 'flex', flexDirection: 'column', gap: 4.5, alignItems: 'center',
+          }}
+          aria-label="Open menu"
+        >
+          {[0, 1, 2].map(i => (
+            <span key={i} style={{ display: 'block', width: 18, height: 1.5, borderRadius: 2, background: C.muted }} />
+          ))}
+        </button>
+      )}
+
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 700, color: C.text, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{meta.title}</div>
+        {!isMobile && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>{meta.subtitle}</div>}
       </div>
 
-      {/* Time range segmented control */}
-      <div style={{
-        display: 'flex',
-        background: 'rgba(255,255,255,0.04)',
-        borderRadius: 8,
-        padding: 3,
-        gap: 2,
-        border: `1px solid ${C.dim}`,
-      }}>
-        {ranges.map(r => (
-          <button
-            key={r}
-            onClick={() => setRange(r)}
-            style={{
-              padding: '4px 12px',
-              borderRadius: 6,
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: 'pointer',
-              border: 'none',
-              background: range === r ? C.dim2 : 'transparent',
-              color: range === r ? C.text : C.muted,
-              transition: 'background 0.12s, color 0.12s',
-            }}
-          >
-            {r}
-          </button>
-        ))}
-      </div>
+      {/* Time range segmented control — hidden on mobile */}
+      {!isMobile && (
+        <div style={{
+          display: 'flex',
+          background: 'rgba(255,255,255,0.04)',
+          borderRadius: 8,
+          padding: 3,
+          gap: 2,
+          border: `1px solid ${C.dim}`,
+        }}>
+          {ranges.map(r => (
+            <button
+              key={r}
+              onClick={() => setRange(r)}
+              style={{
+                padding: '4px 12px',
+                borderRadius: 6,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                border: 'none',
+                background: range === r ? C.dim2 : 'transparent',
+                color: range === r ? C.text : C.muted,
+                transition: 'background 0.12s, color 0.12s',
+              }}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* Divider */}
-      <div style={{ width: 1, height: 20, background: C.dim }} />
+      {/* Divider — hidden on mobile */}
+      {!isMobile && <div style={{ width: 1, height: 20, background: C.dim }} />}
 
       {/* Live indicator + time */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>

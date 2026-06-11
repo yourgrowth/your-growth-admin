@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition, useEffect } from 'react'
 import Badge from '@/components/ui/Badge'
@@ -80,7 +80,7 @@ export default function TicketDrawer({ ticket, onClose, onUpdate }: Props) {
                 <Badge color={statusColor(status)}>{status.replace('_', ' ')}</Badge>
               </div>
             </div>
-            <button onClick={onClose} className="text-lg leading-none shrink-0" style={{ color: '#7d8fa3' }}>✕</button>
+            <button onClick={onClose} className="text-lg leading-none shrink-0" style={{ color: '#7d8fa3' }}>âœ•</button>
           </div>
         </div>
 
@@ -90,10 +90,10 @@ export default function TicketDrawer({ ticket, onClose, onUpdate }: Props) {
           <div className="rounded-lg p-4 flex flex-col gap-2" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
             <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: '#7d8fa3' }}>User</p>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div><span style={{ color: '#7d8fa3' }}>Name: </span><span style={{ color: '#e6edf3' }}>{ticket.user_name ?? '—'}</span></div>
-              <div><span style={{ color: '#7d8fa3' }}>Email: </span><span style={{ color: '#e6edf3' }}>{ticket.user_email ?? '—'}</span></div>
-              <div><span style={{ color: '#7d8fa3' }}>Plan: </span><span style={{ color: '#bc8cff' }}>{ticket.user_plan ?? '—'}</span></div>
-              <div><span style={{ color: '#7d8fa3' }}>Stage: </span><span style={{ color: '#3fb950' }}>{ticket.user_stage ?? '—'}</span></div>
+              <div><span style={{ color: '#7d8fa3' }}>Name: </span><span style={{ color: '#e6edf3' }}>{ticket.user_name ?? 'â€”'}</span></div>
+              <div><span style={{ color: '#7d8fa3' }}>Email: </span><span style={{ color: '#e6edf3' }}>{ticket.user_email ?? 'â€”'}</span></div>
+              <div><span style={{ color: '#7d8fa3' }}>Plan: </span><span style={{ color: '#bc8cff' }}>{ticket.user_plan ?? 'â€”'}</span></div>
+              <div><span style={{ color: '#7d8fa3' }}>Stage: </span><span style={{ color: '#3fb950' }}>{ticket.user_stage ?? 'â€”'}</span></div>
             </div>
           </div>
 
@@ -106,7 +106,7 @@ export default function TicketDrawer({ ticket, onClose, onUpdate }: Props) {
           )}
 
           {/* Controls */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <p className="text-xs mb-1.5" style={{ color: '#7d8fa3' }}>Priority</p>
               <select
@@ -206,7 +206,7 @@ export default function TicketDrawer({ ticket, onClose, onUpdate }: Props) {
             {/* Reply form */}
             <div className="flex flex-col gap-2">
               <textarea
-                placeholder="Write a reply…"
+                placeholder="Write a replyâ€¦"
                 value={replyBody}
                 onChange={e => setReplyBody(e.target.value)}
                 rows={3}
@@ -234,3 +234,4 @@ export default function TicketDrawer({ ticket, onClose, onUpdate }: Props) {
     </>
   )
 }
+
