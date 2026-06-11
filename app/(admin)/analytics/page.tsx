@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import PageHeader from '@/components/ui/PageHeader'
-import StatCard from '@/components/ui/StatCard'
-import ProgressBar from '@/components/ui/ProgressBar'
+import { createAdminClient } from '@/lib/supabase/admin'
+import AnalyticsClient from './AnalyticsClient'
 
 function getWeekStart(date: Date): string {
   const d = new Date(date)
@@ -13,6 +12,7 @@ function getWeekStart(date: Date): string {
 
 export default async function AnalyticsPage() {
   const supabase = await createClient()
+  const admin = createAdminClient()
 
   const now = new Date()
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
@@ -32,6 +32,9 @@ export default async function AnalyticsPage() {
     { data: nutritionUsers },
     { data: allProfiles },
     { data: cohortRaw },
+    chatSessionsResult,
+    chatMessagesResult,
+    pageViewsResult,
   ] = await Promise.all([
     supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('last_sign_in_at', todayStart),
     supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('last_sign_in_at', sevenDaysAgo),
@@ -44,16 +47,15 @@ export default async function AnalyticsPage() {
     supabase.from('meal_suggestions').select('user_id'),
     supabase.from('profiles').select('stage'),
     supabase.from('profiles').select('id, created_at, last_sign_in_at').gte('created_at', eightWeeksAgo),
+    Promise.resolve(admin.from('gardener_chat_sessions').select('id, created_at').gte('created_at', thirtyDaysAgo).order('created_at')).catch(() => ({ data: null })),
+    Promise.resolve(admin.from('gardener_chat_messages').select('session_id, created_at, role, content, response_ms').gte('created_at', thirtyDaysAgo).order('created_at')).catch(() => ({ data: null })),
+    Promise.resolve(admin.from('page_views').select('page_name, viewed_at').gte('viewed_at', thirtyDaysAgo)).catch(() => ({ data: null })),
   ])
 
   const total = Math.max(totalUsers ?? 1, 1)
 
-  // Cohort analysis — last 8 signup weeks
-  const cohortProfiles = (cohortRaw ?? []) as Array<{
-    id: string
-    created_at: string
-    last_sign_in_at: string | null
-  }>
+  // ── Cohort ────────────────────────────────────────────────────────────────
+  const cohortProfiles = (cohortRaw ?? []) as Array<{ id: string; created_at: string; last_sign_in_at: string | null }>
   const thirtyDaysAgoDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
   const cohortMap = new Map<string, { signups: number; active: number }>()
   for (const p of cohortProfiles) {
@@ -70,6 +72,7 @@ export default async function AnalyticsPage() {
     return { week, ...data }
   })
 
+  // ── Feature adoption ──────────────────────────────────────────────────────
   const habitCount = new Set((habitUsers ?? []).map((r) => r.user_id)).size
   const goalCount = new Set((goalUsers ?? []).map((r) => r.user_id)).size
   const gardenerCount = new Set((gardenerUsers ?? []).map((r) => r.user_id)).size
@@ -80,7 +83,6 @@ export default async function AnalyticsPage() {
     { label: 'Goals', count: goalCount, color: '#58a6ff' },
     { label: 'Growth Bible', count: gardenerCount, color: '#bc8cff' },
     { label: 'Nutrition', count: nutritionCount, color: '#39d0d8' },
-    { label: 'Journal', count: null, color: '#7d8fa3' },
   ]
 
   const stageMap: Record<string, number> = {}
@@ -88,150 +90,101 @@ export default async function AnalyticsPage() {
     const s = p.stage ?? 'Unknown'
     stageMap[s] = (stageMap[s] ?? 0) + 1
   })
-  const stageEntries = Object.entries(stageMap).sort((a, b) => b[1] - a[1])
+  const stageEntries = Object.entries(stageMap).sort((a, b) => b[1] - a[1]) as [string, number][]
+
+  // ── Gardener Chat analytics ───────────────────────────────────────────────
+  type Session = { id: string; created_at: string }
+  type Message = { session_id: string; created_at: string; role: string; content: string; response_ms: number | null }
+
+  const sessions = ((chatSessionsResult as { data: Session[] | null }).data ?? [])
+  const messages = ((chatMessagesResult as { data: Message[] | null }).data ?? [])
+
+  // Day-by-day aggregation
+  const dayMap = new Map<string, { messages: number; sessions: Set<string> }>()
+  for (const m of messages) {
+    const d = m.created_at.slice(0, 10)
+    if (!dayMap.has(d)) dayMap.set(d, { messages: 0, sessions: new Set() })
+    dayMap.get(d)!.messages++
+    dayMap.get(d)!.sessions.add(m.session_id)
+  }
+  const chatDays = Array.from(dayMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, v]) => ({ date, messages: v.messages, sessions: v.sessions.size }))
+
+  const totalChatSessions = sessions.length
+  const totalChatMessages = messages.filter((m) => m.role === 'user').length
+  const assistantMessages = messages.filter((m) => m.role === 'assistant')
+
+  // Avg messages per session
+  const msgPerSession = new Map<string, number>()
+  for (const m of messages.filter((m) => m.role === 'user')) {
+    msgPerSession.set(m.session_id, (msgPerSession.get(m.session_id) ?? 0) + 1)
+  }
+  const allMsgCounts = Array.from(msgPerSession.values())
+  const avgMessagesPerSession = allMsgCounts.length > 0
+    ? allMsgCounts.reduce((a, b) => a + b, 0) / allMsgCounts.length
+    : 0
+
+  // Drop-off: sessions with only 1 user message
+  const singleMsgSessions = allMsgCounts.filter((c) => c <= 1).length
+  const chatDropOffPct = totalChatSessions > 0 ? Math.round((singleMsgSessions / totalChatSessions) * 100) : 0
+
+  // Avg response time
+  const responseTimes = assistantMessages.map((m) => m.response_ms ?? 0).filter((v) => v > 0)
+  const avgResponseMs = responseTimes.length > 0
+    ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length)
+    : 0
+
+  // Top first messages — first user message per session
+  const firstMsgMap = new Map<string, string>()
+  const sortedMsgs = [...messages].sort((a, b) => a.created_at.localeCompare(b.created_at))
+  for (const m of sortedMsgs) {
+    if (m.role === 'user' && !firstMsgMap.has(m.session_id)) {
+      firstMsgMap.set(m.session_id, m.content)
+    }
+  }
+  const firstMsgCounts = new Map<string, number>()
+  for (const content of firstMsgMap.values()) {
+    const truncated = content.slice(0, 60)
+    firstMsgCounts.set(truncated, (firstMsgCounts.get(truncated) ?? 0) + 1)
+  }
+  const topFirstMessages = Array.from(firstMsgCounts.entries())
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5)
+    .map(([content, count]) => ({ content, count }))
+
+  // ── Insights page analytics ───────────────────────────────────────────────
+  const pageViews = ((pageViewsResult as { data: { page_name: string; viewed_at: string }[] | null }).data ?? [])
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+  const insightViews30d = pageViews.filter((p) => p.page_name === 'gardener_insights').length
+  const insightViewsYesterday = pageViews.filter((p) => p.page_name === 'gardener_insights' && p.viewed_at >= yesterday).length
+
+  // Pattern tap rate: sessions that started from insights page / total insight views
+  const insightChatSessions = pageViews.filter((p) => p.page_name === 'gardener_chat').length
+  const patternTapRate = insightViews30d > 0 ? Math.round((insightChatSessions / insightViews30d) * 100) : 0
+  const chatOpenRate = insightViews30d > 0 ? Math.round((totalChatSessions / Math.max(insightViews30d, 1)) * 100) : 0
 
   return (
-    <div>
-      <PageHeader title="Analytics" subtitle="Usage and engagement metrics" />
-
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <StatCard label="DAU" value={dau ?? 0} sub="Active today" color="#3fb950" />
-        <StatCard label="WAU" value={wau ?? 0} sub="Active this week" color="#58a6ff" />
-        <StatCard label="MAU" value={mau ?? 0} sub="Active this month" color="#bc8cff" />
-        <StatCard label="New Signups Today" value={newSignups ?? 0} color="#39d0d8" />
-      </div>
-
-      <div className="grid grid-cols-2 gap-6 mb-8">
-        <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
-          <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>
-            Feature Adoption
-          </p>
-          <div className="flex flex-col gap-4">
-            {features.map(({ label, count, color }) => {
-              const pct = count === null ? null : Math.round((count / total) * 100)
-              return (
-                <div key={label}>
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span style={{ color: '#e6edf3' }}>{label}</span>
-                    <span style={{ color: '#7d8fa3' }}>
-                      {count === null ? 'no data' : `${count} users · ${pct}%`}
-                    </span>
-                  </div>
-                  <ProgressBar value={pct ?? 0} color={color} />
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
-          <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: '#7d8fa3' }}>
-            Stage Distribution
-          </p>
-          <div className="flex flex-col gap-3">
-            {stageEntries.length > 0 ? (
-              stageEntries.map(([stage, count]) => (
-                <div key={stage}>
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span style={{ color: '#e6edf3' }}>{stage}</span>
-                    <span style={{ color: '#7d8fa3' }}>
-                      {count} · {Math.round((count / total) * 100)}%
-                    </span>
-                  </div>
-                  <ProgressBar value={(count / total) * 100} color="#3fb950" />
-                </div>
-              ))
-            ) : (
-              <p className="text-xs" style={{ color: '#7d8fa3' }}>No stage data</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>
-            Retention
-          </p>
-          <a
-            href="https://app.posthog.com"
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs underline"
-            style={{ color: '#58a6ff' }}
-          >
-            View in PostHog →
-          </a>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          {['D1', 'D7', 'D30'].map((label) => (
-            <div
-              key={label}
-              className="rounded-lg p-4 flex flex-col gap-2"
-              style={{ background: '#080b0f', border: '1px solid #1a2332' }}
-            >
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>
-                {label} Retention
-              </p>
-              <p className="text-2xl font-bold" style={{ color: '#1a2332' }}>—</p>
-              <p className="text-xs" style={{ color: '#7d8fa3' }}>
-                Full retention data available in PostHog
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="rounded-lg overflow-hidden mt-8" style={{ border: '1px solid #1a2332' }}>
-        <div className="px-5 py-4" style={{ background: '#0d1117', borderBottom: '1px solid #1a2332' }}>
-          <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>
-            Cohort Analysis — Last 8 Signup Weeks
-          </p>
-        </div>
-        <table className="w-full text-sm">
-          <thead>
-            <tr style={{ background: '#0d1117', borderBottom: '1px solid #1a2332' }}>
-              {['Cohort Week', 'Signups', 'Still Active', 'Retention Rate'].map((col) => (
-                <th
-                  key={col}
-                  className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: '#7d8fa3' }}
-                >
-                  {col}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {cohorts.map((c, i) => {
-              const pct = c.signups > 0 ? Math.round((c.active / c.signups) * 100) : 0
-              const pctColor = pct >= 60 ? '#3fb950' : pct >= 30 ? '#d29922' : '#f85149'
-              return (
-                <tr
-                  key={c.week}
-                  style={{
-                    background: '#080b0f',
-                    borderBottom: i < cohorts.length - 1 ? '1px solid #1a2332' : undefined,
-                  }}
-                >
-                  <td className="px-5 py-3 font-mono text-xs" style={{ color: '#e6edf3' }}>
-                    {c.week}
-                  </td>
-                  <td className="px-5 py-3" style={{ color: '#e6edf3' }}>
-                    {c.signups}
-                  </td>
-                  <td className="px-5 py-3" style={{ color: '#58a6ff' }}>
-                    {c.active}
-                  </td>
-                  <td className="px-5 py-3 font-medium" style={{ color: c.signups > 0 ? pctColor : '#7d8fa3' }}>
-                    {c.signups > 0 ? `${pct}%` : '—'}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <AnalyticsClient
+      dau={dau ?? 0}
+      wau={wau ?? 0}
+      mau={mau ?? 0}
+      newSignups={newSignups ?? 0}
+      total={total}
+      features={features}
+      stageEntries={stageEntries}
+      cohorts={cohorts}
+      chatDays={chatDays}
+      avgMessagesPerSession={avgMessagesPerSession}
+      totalChatSessions={totalChatSessions}
+      totalChatMessages={totalChatMessages}
+      chatDropOffPct={chatDropOffPct}
+      topFirstMessages={topFirstMessages}
+      avgResponseMs={avgResponseMs}
+      insightViews30d={insightViews30d}
+      insightViewsYesterday={insightViewsYesterday}
+      patternTapRate={patternTapRate}
+      chatOpenRate={chatOpenRate}
+    />
   )
 }

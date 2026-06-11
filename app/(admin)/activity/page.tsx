@@ -63,7 +63,7 @@ export default function ActivityPage() {
 
       const [sups, comps, goals, gardens, meals] = await Promise.all([
         supabase.from('profiles').select('id, full_name, created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
-        supabase.from('habit_completions').select('id, user_id, habit_id, completed_at').gte('completed_at', since).order('completed_at', { ascending: false }).limit(20),
+        supabase.from('completions').select('id, user_id, habit_id, completed_at').gte('completed_at', since).order('completed_at', { ascending: false }).limit(20),
         supabase.from('goals').select('id, user_id, title, created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
         supabase.from('gardener_summaries').select('id, user_id, created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
         supabase.from('meal_suggestions').select('id, user_id, created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
@@ -139,7 +139,7 @@ export default function ActivityPage() {
           })
         }
       })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'habit_completions' }, (payload) => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'completions' }, (payload) => {
         const c = payload.new as { id: string; user_id: string; habit_id: string; completed_at: string }
         addEvent({
           key: `habit-${c.id}-${Date.now()}`,

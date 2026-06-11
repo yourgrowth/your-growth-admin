@@ -9,24 +9,45 @@ import type { HealthStats, EdgeFunctionStat } from '@/app/actions/health'
 import type { AppError, ServiceIncident } from '@/types/database'
 
 const SERVICES = ['Supabase', 'RevenueCat', 'Mux', 'Anthropic API', 'Expo Push']
+const COVERED_COUNTRIES = new Set(['AU', 'US', 'GB', 'NZ', 'CA', 'IE', 'ZA', 'IN', 'SG'])
 
 const T = { fontFamily: 'IBM Plex Mono, monospace' }
 
 type Filter = 'All' | 'Unresolved' | 'Edge Functions' | 'Auth Errors'
+type Tab = 'health' | 'safety'
+
+type SafetyFlag = {
+  id: string
+  user_id: string | null
+  layer_caught: string | null
+  trigger_type: string | null
+  input_snippet: string | null
+  response_given: string | null
+  created_at: string
+  user_country?: string | null
+}
+
+type ProxyStatus = 'operational' | 'unknown' | 'degraded'
 
 type Props = {
   stats: HealthStats
   edgeStats: EdgeFunctionStat[]
   incidents: ServiceIncident[]
+  safetyFlags: SafetyFlag[]
+  safetyStats: { total: number; crisisTotal: number; rateLimitTotal: number; flagRate: number }
+  countryList: { country: string; count: number }[]
+  proxyStatus?: Record<string, ProxyStatus>
 }
 
-export default function HealthClient({ stats, edgeStats, incidents: initialIncidents }: Props) {
+export default function HealthClient({ stats, edgeStats, incidents: initialIncidents, safetyFlags, safetyStats, countryList, proxyStatus = {} }: Props) {
   const [errors, setErrors] = useState<AppError[]>([])
   const [incidents, setIncidents] = useState<ServiceIncident[]>(initialIncidents)
   const [filter, setFilter] = useState<Filter>('All')
+  const [safetyFilter, setSafetyFilter] = useState<'all' | 'crisis' | 'rate_limit' | 'false_positive'>('all')
   const [incidentModal, setIncidentModal] = useState<string | null>(null)
   const [incidentDesc, setIncidentDesc] = useState('')
   const [isPending, startTransition] = useTransition()
+  const [tab, setTab] = useState<Tab>('health')
 
   useEffect(() => {
     const supabase = createClient()
@@ -61,8 +82,128 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
     borderRadius: 4, padding: '6px 10px', fontSize: 13, ...T, width: '100%', outline: 'none',
   }
 
+  const filteredSafety = safetyFlags.filter((f) => {
+    if (safetyFilter === 'crisis') return f.layer_caught === 'crisis'
+    if (safetyFilter === 'rate_limit') return f.layer_caught === 'rate_limit'
+    return true
+  })
+
   return (
     <div className="flex flex-col gap-6" style={T}>
+      {/* Tab bar */}
+      <div className="flex" style={{ borderBottom: '1px solid #1a2332' }}>
+        {([['health', 'App Health'], ['safety', 'Safety']] as [Tab, string][]).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            className="px-5 py-2.5 text-sm font-medium cursor-pointer"
+            style={{
+              background: 'transparent', border: 'none',
+              borderBottom: `2px solid ${tab === key ? '#3fb950' : 'transparent'}`,
+              color: tab === key ? '#e6edf3' : '#7d8fa3', marginBottom: '-1px',
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'safety' && (
+        <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-4 gap-4">
+            <StatCard label="Total Safety Flags" value={safetyStats.total} color="#f85149" />
+            <StatCard label="Crisis Events" value={safetyStats.crisisTotal} color="#f85149" sub="all time" />
+            <StatCard label="Rate Limit Hits" value={safetyStats.rateLimitTotal} color="#d29922" />
+            <StatCard label="Flag Rate" value={`${safetyStats.flagRate}%`} sub="of all chats" color={safetyStats.flagRate > 5 ? '#f85149' : '#3fb950'} />
+          </div>
+
+          {/* Country coverage */}
+          <div className="rounded-lg overflow-hidden" style={{ border: '1px solid #1a2332' }}>
+            <div className="px-4 py-3" style={{ background: '#0d1117', borderBottom: '1px solid #1a2332' }}>
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>Crisis Resource Coverage</p>
+            </div>
+            <div className="grid grid-cols-3 gap-0">
+              {countryList.map((c, i) => {
+                const covered = COVERED_COUNTRIES.has(c.country)
+                return (
+                  <div key={c.country} className="px-4 py-3 flex items-center justify-between" style={{ background: '#080b0f', borderBottom: i < countryList.length - 1 ? '1px solid #1a2332' : undefined, borderRight: i % 3 < 2 ? '1px solid #1a2332' : undefined }}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs" style={{ color: covered ? '#3fb950' : '#f85149' }}>{covered ? '✓' : '✗'}</span>
+                      <span className="text-sm font-medium" style={{ color: '#e6edf3' }}>{c.country}</span>
+                    </div>
+                    <span className="text-xs" style={{ color: '#7d8fa3' }}>{c.count} users</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Flag log */}
+          <div className="rounded-lg overflow-hidden" style={{ border: '1px solid #1a2332' }}>
+            <div className="px-4 py-3 flex items-center justify-between" style={{ background: '#0d1117', borderBottom: '1px solid #1a2332' }}>
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>Safety Flag Log</p>
+              <div className="flex gap-1">
+                {(['all', 'crisis', 'rate_limit'] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setSafetyFilter(f)}
+                    className="px-2.5 py-1 rounded text-xs"
+                    style={{
+                      background: safetyFilter === f ? '#1a2332' : 'transparent',
+                      color: safetyFilter === f ? '#e6edf3' : '#7d8fa3',
+                      border: `1px solid ${safetyFilter === f ? '#1a2332' : 'transparent'}`,
+                    }}
+                  >
+                    {f === 'all' ? 'All' : f === 'crisis' ? 'Crisis' : 'Rate Limit'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {filteredSafety.length === 0 ? (
+              <div className="px-4 py-8 text-center text-xs" style={{ background: '#080b0f', color: '#7d8fa3' }}>
+                No safety flags match this filter
+              </div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ background: '#0d1117', borderBottom: '1px solid #1a2332' }}>
+                    {['Time', 'Type', 'Layer', 'User', 'Trigger'].map((col) => (
+                      <th key={col} className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredSafety.slice(0, 50).map((f, i) => (
+                    <tr key={f.id} style={{ background: f.layer_caught === 'crisis' ? '#f8514908' : '#080b0f', borderBottom: i < filteredSafety.length - 1 ? '1px solid #1a2332' : undefined }}>
+                      <td className="px-4 py-2.5 text-xs whitespace-nowrap" style={{ color: '#7d8fa3' }}>
+                        {new Date(f.created_at).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span className="text-xs px-2 py-0.5 rounded" style={{
+                          background: f.layer_caught === 'crisis' ? '#f8514922' : '#d2992222',
+                          color: f.layer_caught === 'crisis' ? '#f85149' : '#d29922',
+                          border: `1px solid ${f.layer_caught === 'crisis' ? '#f85149' : '#d29922'}`,
+                        }}>
+                          {f.layer_caught ?? '—'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 text-xs" style={{ color: '#7d8fa3' }}>{f.trigger_type ?? '—'}</td>
+                      <td className="px-4 py-2.5 font-mono text-xs" style={{ color: '#7d8fa3' }}>
+                        {f.user_id ? f.user_id.slice(0, 8) + '…' : 'anon'}
+                      </td>
+                      <td className="px-4 py-2.5 text-xs max-w-64 truncate" style={{ color: '#7d8fa3' }}>
+                        {f.input_snippet ?? '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      )}
+
+      {tab === 'health' && <>
       {/* Stat cards */}
       <div className="grid grid-cols-4 gap-4">
         <StatCard label="Total Errors Today" value={stats.totalErrorsToday} color="#f85149" />
@@ -186,20 +327,26 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
           {SERVICES.map(service => {
             const hasIncident = affectedService(service)
             const activeIncident = incidents.find(i => i.service_name === service)
+            const proxy = proxyStatus[service] ?? 'unknown'
+            // incident overrides everything; otherwise use proxy
+            const statusLabel = hasIncident ? 'Incident' : proxy === 'operational' ? 'Operational' : proxy === 'degraded' ? 'Degraded' : 'Unknown'
+            const dotColor = hasIncident || proxy === 'degraded' ? '#f85149' : proxy === 'operational' ? '#3fb950' : '#d29922'
+            const textColor = hasIncident || proxy === 'degraded' ? '#f85149' : proxy === 'operational' ? '#3fb950' : '#d29922'
+            const borderColor = hasIncident || proxy === 'degraded' ? '#f85149' : '#1a2332'
             return (
               <div
                 key={service}
                 className="rounded-lg p-4 flex flex-col gap-2"
-                style={{ background: '#080b0f', border: `1px solid ${hasIncident ? '#f85149' : '#1a2332'}` }}
+                style={{ background: '#080b0f', border: `1px solid ${borderColor}` }}
               >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full shrink-0"
-                    style={{ background: hasIncident ? '#f85149' : '#3fb950', boxShadow: `0 0 6px ${hasIncident ? '#f85149' : '#3fb950'}` }}
+                    style={{ background: dotColor, boxShadow: `0 0 6px ${dotColor}` }}
                   />
                   <p className="text-xs font-medium" style={{ color: '#e6edf3' }}>{service}</p>
                 </div>
-                <p className="text-xs" style={{ color: hasIncident ? '#f85149' : '#3fb950' }}>
-                  {hasIncident ? 'Incident' : 'Operational'}
+                <p className="text-xs" style={{ color: textColor }}>
+                  {statusLabel}
                 </p>
                 {hasIncident && activeIncident && (
                   <button
@@ -230,6 +377,8 @@ export default function HealthClient({ stats, edgeStats, incidents: initialIncid
       </div>
 
       {/* Incident modal */}
+      </>}
+
       {incidentModal && (
         <div
           className="fixed inset-0 flex items-center justify-center"

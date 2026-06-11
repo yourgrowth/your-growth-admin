@@ -768,3 +768,25 @@ export async function getGardenerProfile(userId: string) {
   const { data } = await admin.from('gardener_profiles').select('*').eq('user_id', userId).single()
   return data
 }
+
+export async function getGardenerContext(userId: string): Promise<Record<string, unknown> | null> {
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('gardener_context_snapshots')
+    .select('*')
+    .eq('user_id', userId)
+    .order('generated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  return data as Record<string, unknown> | null
+}
+
+export async function getUserModel(userId: string): Promise<Record<string, unknown> | null> {
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('user_models')
+    .select('data_confidence_score, active_day_rate, total_active_days, currently_returning, voice_register, key_action_today')
+    .eq('user_id', userId)
+    .maybeSingle()
+  return data as Record<string, unknown> | null
+}

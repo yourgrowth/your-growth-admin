@@ -7,7 +7,7 @@ export default async function HabitsPage() {
   const [{ data: habits }, { data: profiles }, { data: completions }] = await Promise.all([
     supabase.from('habits').select('id, user_id, name, category, created_at'),
     supabase.from('profiles').select('id, full_name'),
-    supabase.from('habit_completions').select('habit_id'),
+    supabase.from('completions').select('habit_id'),
   ])
 
   const profileMap = new Map<string, string>()

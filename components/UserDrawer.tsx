@@ -17,6 +17,7 @@ import {
   getHabitCompletionGrid, getUserHabitsExtended, getUserNutritionData,
   getUserJournalData, unflagJournalEntry, deleteJournalEntry,
   deleteGoal, getUserModerationHistory, getUserActivityFeed, getGardenerProfile,
+  getGardenerContext, getUserModel,
   type TimelineEvent,
   type HabitExtended, type NutritionData, type JournalData,
 } from '@/app/actions/users'
@@ -120,6 +121,8 @@ export default function UserDrawer({ user, onClose }: Props) {
   const [goalNotes, setGoalNotes] = useState<Record<string, GoalNote[]>>({})
   const [gardener, setGardener] = useState<GardenerSummary[] | null>(null)
   const [gardenerProfile, setGardenerProfile] = useState<{ phase?: string | null } | null>(null)
+  const [gardenerContext, setGardenerContext] = useState<Record<string, unknown> | null | undefined>(undefined)
+  const [userModel, setUserModel] = useState<Record<string, unknown> | null | undefined>(undefined)
   const [timeline, setTimeline] = useState<TimelineEvent[] | null>(null)
   const [communications, setCommunications] = useState<UserCommunication[] | null>(null)
   const [notifHistory, setNotifHistory] = useState<NotificationLog[] | null>(null)
@@ -172,9 +175,16 @@ export default function UserDrawer({ user, onClose }: Props) {
       startTransition(async () => setJournal(await getUserJournalData(user.id)))
     if (tab === 'Gardener' && gardener === null)
       startTransition(async () => {
-        const [g, gp] = await Promise.all([getUserGardener(user.id), getGardenerProfile(user.id)])
+        const [g, gp, gc, um] = await Promise.all([
+          getUserGardener(user.id),
+          getGardenerProfile(user.id),
+          getGardenerContext(user.id),
+          getUserModel(user.id),
+        ])
         setGardener(g)
         setGardenerProfile(gp)
+        setGardenerContext(gc)
+        setUserModel(um)
         if (gp?.phase) setGardenerPhase(gp.phase ?? '')
       })
     if (tab === 'Timeline' && timeline === null)
@@ -770,6 +780,70 @@ export default function UserDrawer({ user, onClose }: Props) {
                   </button>
                 </div>
               </div>
+
+              {/* Context Snapshot Summary */}
+              {(gardenerContext !== undefined || userModel !== undefined) && (
+                <div className="p-4 rounded flex flex-col gap-3" style={{ background: '#080b0f', border: '1px solid #1a2332' }}>
+                  <p className="text-xs mb-1" style={sh}>Context Snapshot</p>
+                  {gardenerContext === null && userModel === null ? (
+                    <p className="text-xs" style={{ color: '#7d8fa3' }}>No context snapshot built yet — run the intelligence pipeline.</p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      {userModel && (
+                        <>
+                          <div>
+                            <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Data Confidence</p>
+                            <p className="text-sm font-medium" style={{ color: Number(userModel.data_confidence_score ?? 0) < 30 ? '#f85149' : Number(userModel.data_confidence_score ?? 0) < 60 ? '#d29922' : '#3fb950' }}>
+                              {userModel.data_confidence_score != null ? String(userModel.data_confidence_score) : '—'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Active Day Rate</p>
+                            <p className="text-sm font-medium" style={{ color: '#e6edf3' }}>
+                              {userModel.active_day_rate != null ? `${Math.round(Number(userModel.active_day_rate) * 100)}%` : '—'}
+                              {userModel.total_active_days != null && <span style={{ color: '#7d8fa3' }}> ({String(userModel.total_active_days)}d)</span>}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Re-Engagement</p>
+                            <p className="text-sm font-medium" style={{ color: userModel.currently_returning ? '#3fb950' : '#7d8fa3' }}>
+                              {userModel.currently_returning ? 'Currently returning' : 'Not in gap'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Voice Register</p>
+                            <p className="text-sm font-medium" style={{ color: '#bc8cff' }}>
+                              {userModel.voice_register != null ? String(userModel.voice_register) : '—'}
+                            </p>
+                          </div>
+                          {userModel.key_action_today && (
+                            <div className="col-span-2">
+                              <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Today&apos;s Key Action</p>
+                              <p className="text-xs italic" style={{ color: '#e6edf3' }}>{String(userModel.key_action_today)}</p>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {gardenerContext && (
+                        <div className="col-span-2">
+                          <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>Strongest Correlation</p>
+                          {(() => {
+                            const ctx = (gardenerContext.context_json as Record<string, unknown>) ?? {}
+                            const allTime = (ctx.all_time as Record<string, unknown>) ?? {}
+                            const correlations = (allTime.correlations as Array<Record<string, unknown>>) ?? []
+                            const top = correlations[0]
+                            return top ? (
+                              <p className="text-xs" style={{ color: '#58a6ff' }}>
+                                {String(top.metric_a ?? '?')} × {String(top.metric_b ?? '?')} — r={Number(top.strength ?? 0).toFixed(2)} ({String(top.data_points ?? '?')} data points)
+                              </p>
+                            ) : <p className="text-xs" style={{ color: '#7d8fa3' }}>No correlations yet</p>
+                          })()}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Summaries */}
               {gardener === null ? (

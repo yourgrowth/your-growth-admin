@@ -7,9 +7,9 @@ import Btn from '@/components/ui/Btn'
 import {
   getStepStats, getUsersAtStep, sendReengagement,
   getStepTimeStats, getWeekCohorts, getStepStatsForCohort,
-  ONBOARDING_STEPS,
 } from '@/app/actions/onboarding'
-import type { StepStat, DroppedUser, TimeStatRow, CohortWeek } from '@/app/actions/onboarding'
+import type { StepStat, DroppedUser, TimeStatRow, CohortWeek } from '@/app/actions/onboarding-constants'
+import { ONBOARDING_STEPS } from '@/app/actions/onboarding-constants'
 
 const T = { fontFamily: 'IBM Plex Mono, monospace' }
 

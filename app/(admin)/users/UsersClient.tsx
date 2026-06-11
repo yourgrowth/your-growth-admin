@@ -1,398 +1,224 @@
 'use client'
 
 import { useState, useMemo, useTransition } from 'react'
-import PageHeader from '@/components/ui/PageHeader'
-import Badge from '@/components/ui/Badge'
-import Btn from '@/components/ui/Btn'
-import UserDrawer, { type UserWithEmail } from '@/components/UserDrawer'
+import { useRouter } from 'next/navigation'
 import { suspendUser, restoreUser, bulkSuspend, bulkGrantPro, bulkRevokePro } from '@/app/actions/users'
+import type { UserWithEmail } from '@/components/UserDrawer'
 
-function exportCSV() {
-  window.location.href = '/api/export?table=users'
+const C = {
+  bg: '#070a0e', surface: '#0d1117', surface2: '#0f1722', elevated: '#111a26',
+  dim: '#1a2332', dim2: '#243044', text: '#e6edf3', muted: '#7d8fa3', muted2: '#5a6b7d',
+  green: '#3fb950', blue: '#58a6ff', purple: '#bc8cff', amber: '#d29922', red: '#f85149',
 }
 
+function exportCSV() { window.location.href = '/api/export?table=users' }
 function exportSelected(selected: UserWithEmail[]) {
-  const headers = ['id', 'full_name', 'email', 'plan', 'stage', 'streak', 'points', 'status', 'created_at']
-  const escape = (v: unknown) => {
-    if (v === null || v === undefined) return ''
-    const s = String(v)
-    return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s
-  }
-  const csv = [headers.join(','), ...selected.map((u) => headers.map((h) => escape(u[h as keyof UserWithEmail])).join(','))].join('\n')
-  const blob = new Blob([csv], { type: 'text/csv' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'users_selected.csv'
+  const headers = ['id','full_name','email','plan','stage','streak','points','status','created_at']
+  const escape = (v: unknown) => { const s = String(v ?? ''); return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g,'""')}"` : s }
+  const csv = [headers.join(','), ...selected.map(u => headers.map(h => escape(u[h as keyof UserWithEmail])).join(','))].join('\n')
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csv],{type:'text/csv'})), download: 'users_selected.csv' })
   a.click()
-  URL.revokeObjectURL(url)
 }
 
-type Props = {
-  users: UserWithEmail[]
+function getRiskLabel(s: number) { return s <= 2 ? 'Low' : s <= 5 ? 'Med' : 'High' }
+function getRiskColor(s: number) { return s <= 2 ? C.green : s <= 5 ? C.amber : C.red }
+
+function Avatar({ name, plan }: { name: string; plan?: string | null }) {
+  const initial = name?.[0]?.toUpperCase() ?? '?'
+  return (
+    <div style={{
+      width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
+      background: plan?.toLowerCase() === 'pro' ? 'rgba(188,140,255,0.15)' : 'rgba(63,185,80,0.12)',
+      border: `1px solid ${plan?.toLowerCase() === 'pro' ? C.purple + '44' : C.green + '44'}`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: 11, fontWeight: 700, color: plan?.toLowerCase() === 'pro' ? C.purple : C.green,
+    }}>
+      {initial}
+    </div>
+  )
+}
+
+function Badge({ color, children }: { color: string; children: React.ReactNode }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center',
+      padding: '2px 7px', borderRadius: 5, fontSize: 11, fontWeight: 600,
+      background: color + '22', color, border: `1px solid ${color}44`,
+    }}>
+      {children}
+    </span>
+  )
+}
+
+function StatTile({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
+  return (
+    <div style={{ background: C.surface, border: `1px solid ${C.dim}`, borderRadius: 10, padding: '14px 18px' }}>
+      <div style={{ fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, marginBottom: 8 }}>{label}</div>
+      <div style={{ fontSize: 26, fontWeight: 700, color, fontFamily: 'var(--font-mono, monospace)', lineHeight: 1 }}>{value}</div>
+      {sub && <div style={{ fontSize: 11, color: C.muted, marginTop: 5 }}>{sub}</div>}
+    </div>
+  )
 }
 
 type Filter = 'all' | 'pro' | 'free' | 'suspended' | 'high-risk'
+type AdvancedFilters = { plan: string; stage: string; minStreak: string; maxStreak: string; lastActiveWithin: string; riskLevel: string }
+const EMPTY_ADV: AdvancedFilters = { plan: '', stage: '', minStreak: '', maxStreak: '', lastActiveWithin: '', riskLevel: '' }
 
-const FILTERS: { label: string; value: Filter }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Pro', value: 'pro' },
-  { label: 'Free', value: 'free' },
-  { label: 'Suspended', value: 'suspended' },
-  { label: 'High Risk', value: 'high-risk' },
-]
-
-type AdvancedFilters = {
-  plan: string
-  stage: string
-  minStreak: string
-  maxStreak: string
-  lastActiveWithin: string
-  riskLevel: string
-}
-
-const EMPTY_ADVANCED: AdvancedFilters = {
-  plan: '',
-  stage: '',
-  minStreak: '',
-  maxStreak: '',
-  lastActiveWithin: '',
-  riskLevel: '',
-}
-
-function getRiskLabel(score: number) {
-  if (score <= 2) return 'Low'
-  if (score <= 5) return 'Medium'
-  return 'High'
-}
-
-function getRiskColor(score: number) {
-  if (score <= 2) return '#3fb950'
-  if (score <= 5) return '#d29922'
-  return '#f85149'
-}
-
-const fieldStyle = {
-  background: '#080b0f',
-  border: '1px solid #1a2332',
-  color: '#e6edf3',
-} as const
-
-const COLS = ['User', 'Plan', 'Stage', 'Streak', 'Points', 'Status', 'Risk', 'Actions']
-
-export default function UsersClient({ users }: Props) {
+export default function UsersClient({ users }: { users: UserWithEmail[] }) {
+  const router = useRouter()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
-  const [selectedUser, setSelectedUser] = useState<UserWithEmail | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [isPending, startTransition] = useTransition()
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [advanced, setAdvanced] = useState<AdvancedFilters>(EMPTY_ADVANCED)
+  const [advanced, setAdvanced] = useState<AdvancedFilters>(EMPTY_ADV)
 
   const distinctStages = useMemo(
-    () => [...new Set(users.map((u) => u.stage).filter(Boolean) as string[])].sort(),
+    () => [...new Set(users.map(u => u.stage).filter(Boolean) as string[])].sort(),
     [users],
   )
 
-  const activeAdvancedCount = Object.values(advanced).filter(Boolean).length
-
-  function setAdv(key: keyof AdvancedFilters, value: string) {
-    setAdvanced((prev) => ({ ...prev, [key]: value }))
-  }
+  const advCount = Object.values(advanced).filter(Boolean).length
+  const setAdv = (k: keyof AdvancedFilters, v: string) => setAdvanced(p => ({ ...p, [k]: v }))
 
   const filtered = useMemo(() => {
     let list = users
-
-    if (filter === 'pro') list = list.filter((u) => (u.plan ?? '').toLowerCase() === 'pro')
-    else if (filter === 'free') list = list.filter((u) => (u.plan ?? '').toLowerCase() !== 'pro')
-    else if (filter === 'suspended') list = list.filter((u) => u.status === 'suspended')
-    else if (filter === 'high-risk') list = list.filter((u) => u.riskScore >= 6)
-
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      list = list.filter(
-        (u) => u.full_name?.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
-      )
-    }
-
-    if (advanced.plan) {
-      if (advanced.plan === 'pro') list = list.filter((u) => (u.plan ?? '').toLowerCase() === 'pro')
-      else list = list.filter((u) => (u.plan ?? '').toLowerCase() !== 'pro')
-    }
-    if (advanced.stage) {
-      list = list.filter((u) => u.stage === advanced.stage)
-    }
-    if (advanced.minStreak !== '') {
-      const min = Number(advanced.minStreak)
-      list = list.filter((u) => (u.streak ?? 0) >= min)
-    }
-    if (advanced.maxStreak !== '') {
-      const max = Number(advanced.maxStreak)
-      list = list.filter((u) => (u.streak ?? 0) <= max)
-    }
-    if (advanced.lastActiveWithin) {
-      const days = Number(advanced.lastActiveWithin)
-      const cutoff = Date.now() - days * 86400000
-      list = list.filter(
-        (u) => u.last_sign_in_at != null && new Date(u.last_sign_in_at).getTime() >= cutoff,
-      )
-    }
-    if (advanced.riskLevel === 'low') list = list.filter((u) => u.riskScore <= 2)
-    else if (advanced.riskLevel === 'medium')
-      list = list.filter((u) => u.riskScore >= 3 && u.riskScore <= 5)
-    else if (advanced.riskLevel === 'high') list = list.filter((u) => u.riskScore >= 6)
-
+    if (filter === 'pro') list = list.filter(u => (u.plan ?? '').toLowerCase() === 'pro')
+    else if (filter === 'free') list = list.filter(u => (u.plan ?? '').toLowerCase() !== 'pro')
+    else if (filter === 'suspended') list = list.filter(u => u.status === 'suspended')
+    else if (filter === 'high-risk') list = list.filter(u => u.riskScore >= 6)
+    if (search.trim()) { const q = search.toLowerCase(); list = list.filter(u => u.full_name?.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) }
+    if (advanced.plan === 'pro') list = list.filter(u => (u.plan ?? '').toLowerCase() === 'pro')
+    else if (advanced.plan === 'free') list = list.filter(u => (u.plan ?? '').toLowerCase() !== 'pro')
+    if (advanced.stage) list = list.filter(u => u.stage === advanced.stage)
+    if (advanced.minStreak !== '') list = list.filter(u => (u.streak ?? 0) >= Number(advanced.minStreak))
+    if (advanced.maxStreak !== '') list = list.filter(u => (u.streak ?? 0) <= Number(advanced.maxStreak))
+    if (advanced.lastActiveWithin) { const cutoff = Date.now() - Number(advanced.lastActiveWithin) * 86400000; list = list.filter(u => u.last_sign_in_at != null && new Date(u.last_sign_in_at).getTime() >= cutoff) }
+    if (advanced.riskLevel === 'low') list = list.filter(u => u.riskScore <= 2)
+    else if (advanced.riskLevel === 'medium') list = list.filter(u => u.riskScore >= 3 && u.riskScore <= 5)
+    else if (advanced.riskLevel === 'high') list = list.filter(u => u.riskScore >= 6)
     return list
   }, [users, filter, search, advanced])
 
-  const allChecked = filtered.length > 0 && filtered.every((u) => selected.has(u.id))
-  const someChecked = filtered.some((u) => selected.has(u.id))
-
-  const toggleAll = () => {
-    setSelected((prev) => {
-      const next = new Set(prev)
-      if (allChecked) filtered.forEach((u) => next.delete(u.id))
-      else filtered.forEach((u) => next.add(u.id))
-      return next
-    })
-  }
-
-  const toggleOne = (id: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
+  const allChecked = filtered.length > 0 && filtered.every(u => selected.has(u.id))
+  const someChecked = filtered.some(u => selected.has(u.id))
+  const toggleAll = () => setSelected(p => { const n = new Set(p); allChecked ? filtered.forEach(u => n.delete(u.id)) : filtered.forEach(u => n.add(u.id)); return n })
+  const toggleOne = (id: string) => setSelected(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n })
   const selectedIds = [...selected]
-  const selectedUserList = users.filter((u) => selected.has(u.id))
+  const selectedList = users.filter(u => selected.has(u.id))
+
+  const highRisk = users.filter(u => u.riskScore >= 6).length
+  const suspended = users.filter(u => u.status === 'suspended').length
+  const pro = users.filter(u => (u.plan ?? '').toLowerCase() === 'pro').length
+
+  const inp: React.CSSProperties = { background: C.surface, border: `1px solid ${C.dim}`, borderRadius: 7, color: C.text, padding: '8px 12px', fontSize: 13, outline: 'none' }
+
+  const FILTERS: { label: string; value: Filter; color?: string }[] = [
+    { label: 'All', value: 'all' },
+    { label: 'Pro', value: 'pro', color: C.purple },
+    { label: 'Free', value: 'free' },
+    { label: 'Suspended', value: 'suspended', color: C.amber },
+    { label: 'High Risk', value: 'high-risk', color: C.red },
+  ]
 
   return (
     <div>
-      <PageHeader title="Users" subtitle={`${users.length} total users`} />
+      {/* KPI stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+        <StatTile label="Total Members" value={users.length.toLocaleString()} color={C.green} sub="registered accounts" />
+        <StatTile label="Pro" value={pro.toLocaleString()} color={C.purple} sub={`${Math.round(pro / Math.max(users.length, 1) * 100)}% conversion`} />
+        <StatTile label="High Risk" value={highRisk} color={C.red} sub="churn / disengaged" />
+        <StatTile label="Suspended" value={suspended} color={C.amber} sub="access restricted" />
+      </div>
 
-      <div className="flex flex-col gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <input
-            type="search"
-            placeholder="Search by name or email…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full max-w-sm rounded px-3 py-2 text-sm outline-none"
-            style={{ background: '#0d1117', border: '1px solid #1a2332', color: '#e6edf3' }}
-          />
-          <button
-            onClick={exportCSV}
-            className="px-3 py-2 rounded text-xs font-medium cursor-pointer whitespace-nowrap"
-            style={{ background: 'transparent', border: '1px solid #1a2332', color: '#7d8fa3' }}
-          >
-            Export CSV
-          </button>
-          <button
-            onClick={() => setShowAdvanced((v) => !v)}
-            className="flex items-center gap-2 px-3 py-2 rounded text-xs font-medium cursor-pointer whitespace-nowrap"
-            style={{
-              background: showAdvanced ? '#1a2332' : 'transparent',
-              border: `1px solid ${activeAdvancedCount > 0 ? '#3fb950' : '#1a2332'}`,
-              color: activeAdvancedCount > 0 ? '#3fb950' : '#7d8fa3',
-            }}
-          >
-            Advanced Filter
-            {activeAdvancedCount > 0 && (
-              <span
-                className="inline-flex items-center justify-center w-4 h-4 rounded-full text-xs font-bold"
-                style={{ background: '#3fb950', color: '#080b0f' }}
-              >
-                {activeAdvancedCount}
-              </span>
-            )}
-          </button>
-          {activeAdvancedCount > 0 && (
-            <button
-              onClick={() => setAdvanced(EMPTY_ADVANCED)}
-              className="text-xs cursor-pointer"
-              style={{ color: '#7d8fa3' }}
-            >
-              Clear
-            </button>
-          )}
-        </div>
-
-        {showAdvanced && (
-          <div
-            className="rounded-lg p-4 grid grid-cols-3 gap-4"
-            style={{ background: '#0d1117', border: '1px solid #1a2332' }}
-          >
-            <div>
-              <label className="block text-xs mb-1.5" style={{ color: '#7d8fa3' }}>Plan</label>
-              <select
-                value={advanced.plan}
-                onChange={(e) => setAdv('plan', e.target.value)}
-                className="w-full rounded px-3 py-2 text-sm outline-none"
-                style={fieldStyle}
-              >
-                <option value="">Any</option>
-                <option value="pro">Pro</option>
-                <option value="free">Free</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs mb-1.5" style={{ color: '#7d8fa3' }}>Stage</label>
-              <select
-                value={advanced.stage}
-                onChange={(e) => setAdv('stage', e.target.value)}
-                className="w-full rounded px-3 py-2 text-sm outline-none"
-                style={fieldStyle}
-              >
-                <option value="">Any</option>
-                {distinctStages.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs mb-1.5" style={{ color: '#7d8fa3' }}>Risk Level</label>
-              <select
-                value={advanced.riskLevel}
-                onChange={(e) => setAdv('riskLevel', e.target.value)}
-                className="w-full rounded px-3 py-2 text-sm outline-none"
-                style={fieldStyle}
-              >
-                <option value="">Any</option>
-                <option value="low">Low (0–2)</option>
-                <option value="medium">Medium (3–5)</option>
-                <option value="high">High (6+)</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs mb-1.5" style={{ color: '#7d8fa3' }}>Min Streak</label>
-              <input
-                type="number"
-                min={0}
-                value={advanced.minStreak}
-                onChange={(e) => setAdv('minStreak', e.target.value)}
-                placeholder="0"
-                className="w-full rounded px-3 py-2 text-sm outline-none"
-                style={fieldStyle}
-              />
-            </div>
-            <div>
-              <label className="block text-xs mb-1.5" style={{ color: '#7d8fa3' }}>Max Streak</label>
-              <input
-                type="number"
-                min={0}
-                value={advanced.maxStreak}
-                onChange={(e) => setAdv('maxStreak', e.target.value)}
-                placeholder="∞"
-                className="w-full rounded px-3 py-2 text-sm outline-none"
-                style={fieldStyle}
-              />
-            </div>
-            <div>
-              <label className="block text-xs mb-1.5" style={{ color: '#7d8fa3' }}>Last Active Within</label>
-              <select
-                value={advanced.lastActiveWithin}
-                onChange={(e) => setAdv('lastActiveWithin', e.target.value)}
-                className="w-full rounded px-3 py-2 text-sm outline-none"
-                style={fieldStyle}
-              >
-                <option value="">Any time</option>
-                <option value="1">1 day</option>
-                <option value="7">7 days</option>
-                <option value="30">30 days</option>
-                <option value="90">90 days</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        <div className="flex gap-2">
-          {FILTERS.map(({ label, value }) => (
-            <button
-              key={value}
-              onClick={() => setFilter(value)}
-              className="px-3 py-1.5 rounded text-xs font-medium cursor-pointer"
-              style={{
-                background: filter === value ? '#1a2332' : 'transparent',
-                color:
-                  filter === value
-                    ? value === 'high-risk' ? '#f85149' : '#e6edf3'
-                    : '#7d8fa3',
-                border: `1px solid ${filter === value ? (value === 'high-risk' ? '#f85149' : '#3fb950') : '#1a2332'}`,
-              }}
-            >
-              {label}
+      {/* Search + filters row */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search name or email…"
+          style={{ ...inp, width: 280 }}
+        />
+        <div style={{ display: 'flex', gap: 6 }}>
+          {FILTERS.map(f => (
+            <button key={f.value} onClick={() => setFilter(f.value)} style={{
+              padding: '6px 12px', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+              background: filter === f.value ? C.dim : 'transparent',
+              color: filter === f.value ? (f.color ?? C.text) : C.muted,
+              border: `1px solid ${filter === f.value ? (f.color ? f.color + '66' : C.green + '66') : C.dim}`,
+            }}>
+              {f.label}
             </button>
           ))}
         </div>
+        <button onClick={() => setShowAdvanced(v => !v)} style={{
+          ...inp, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+          color: advCount > 0 ? C.green : C.muted,
+          border: `1px solid ${advCount > 0 ? C.green + '66' : C.dim}`,
+          background: showAdvanced ? C.dim : C.surface,
+        }}>
+          Advanced {advCount > 0 && <span style={{ background: C.green, color: C.bg, borderRadius: '50%', width: 16, height: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>{advCount}</span>}
+        </button>
+        {advCount > 0 && <button onClick={() => setAdvanced(EMPTY_ADV)} style={{ background: 'transparent', border: 'none', color: C.muted, fontSize: 12, cursor: 'pointer' }}>Clear</button>}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+          <button onClick={exportCSV} style={{ ...inp, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: C.muted }}>Export CSV</button>
+        </div>
       </div>
 
-      {someChecked && (
-        <div
-          className="flex items-center gap-3 px-4 py-3 rounded-lg mb-4 flex-wrap"
-          style={{ background: '#0d1117', border: '1px solid #1a2332' }}
-        >
-          <span className="text-xs font-medium" style={{ color: '#e6edf3' }}>
-            {selected.size} selected
-          </span>
-          <div className="flex gap-2 flex-wrap">
-            <button
-              disabled={isPending}
-              onClick={() => startTransition(async () => { await bulkSuspend(selectedIds); setSelected(new Set()) })}
-              className="px-3 py-1.5 rounded text-xs font-medium cursor-pointer"
-              style={{ background: '#f8514922', color: '#f85149', border: '1px solid #f8514944' }}
-            >
-              Suspend All
-            </button>
-            <button
-              disabled={isPending}
-              onClick={() => startTransition(async () => { await bulkGrantPro(selectedIds); setSelected(new Set()) })}
-              className="px-3 py-1.5 rounded text-xs font-medium cursor-pointer"
-              style={{ background: '#bc8cff22', color: '#bc8cff', border: '1px solid #bc8cff44' }}
-            >
-              Grant Pro
-            </button>
-            <button
-              disabled={isPending}
-              onClick={() => startTransition(async () => { await bulkRevokePro(selectedIds); setSelected(new Set()) })}
-              className="px-3 py-1.5 rounded text-xs font-medium cursor-pointer"
-              style={{ background: '#1a2332', color: '#7d8fa3', border: '1px solid #1a2332' }}
-            >
-              Revoke Pro
-            </button>
-            <button
-              onClick={() => exportSelected(selectedUserList)}
-              className="px-3 py-1.5 rounded text-xs font-medium cursor-pointer"
-              style={{ background: '#58a6ff22', color: '#58a6ff', border: '1px solid #58a6ff44' }}
-            >
-              Export Selected
-            </button>
+      {/* Advanced filters */}
+      {showAdvanced && (
+        <div style={{ background: C.surface, border: `1px solid ${C.dim}`, borderRadius: 10, padding: 16, marginBottom: 12, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+          {[
+            { key: 'plan', label: 'Plan', options: [['','Any'],['pro','Pro'],['free','Free']] },
+            { key: 'riskLevel', label: 'Risk Level', options: [['','Any'],['low','Low (0–2)'],['medium','Medium (3–5)'],['high','High (6+)']] },
+            { key: 'lastActiveWithin', label: 'Last Active Within', options: [['','Any time'],['1','1 day'],['7','7 days'],['30','30 days'],['90','90 days']] },
+          ].map(f => (
+            <div key={f.key}>
+              <label style={{ display: 'block', fontSize: 11, color: C.muted, marginBottom: 6 }}>{f.label}</label>
+              <select value={advanced[f.key as keyof AdvancedFilters]} onChange={e => setAdv(f.key as keyof AdvancedFilters, e.target.value)} style={{ ...inp, width: '100%' }}>
+                {f.options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+            </div>
+          ))}
+          <div>
+            <label style={{ display: 'block', fontSize: 11, color: C.muted, marginBottom: 6 }}>Stage</label>
+            <select value={advanced.stage} onChange={e => setAdv('stage', e.target.value)} style={{ ...inp, width: '100%' }}>
+              <option value="">Any</option>
+              {distinctStages.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: 11, color: C.muted, marginBottom: 6 }}>Min Streak</label>
+            <input type="number" min={0} value={advanced.minStreak} onChange={e => setAdv('minStreak', e.target.value)} placeholder="0" style={{ ...inp, width: '100%' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: 11, color: C.muted, marginBottom: 6 }}>Max Streak</label>
+            <input type="number" min={0} value={advanced.maxStreak} onChange={e => setAdv('maxStreak', e.target.value)} placeholder="∞" style={{ ...inp, width: '100%' }} />
           </div>
         </div>
       )}
 
-      <div className="rounded-lg overflow-x-auto" style={{ border: '1px solid #1a2332' }}>
-        <table className="w-full text-sm">
+      {/* Bulk actions */}
+      {someChecked && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', marginBottom: 12, borderRadius: 9, background: C.surface, border: `1px solid ${C.dim}` }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{selected.size} selected</span>
+          <button disabled={isPending} onClick={() => startTransition(async () => { await bulkSuspend(selectedIds); setSelected(new Set()) })} style={{ padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: C.red + '22', color: C.red, border: `1px solid ${C.red}44` }}>Suspend</button>
+          <button disabled={isPending} onClick={() => startTransition(async () => { await bulkGrantPro(selectedIds); setSelected(new Set()) })} style={{ padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: C.purple + '22', color: C.purple, border: `1px solid ${C.purple}44` }}>Grant Pro</button>
+          <button disabled={isPending} onClick={() => startTransition(async () => { await bulkRevokePro(selectedIds); setSelected(new Set()) })} style={{ padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: C.dim, color: C.muted, border: `1px solid ${C.dim2}` }}>Revoke Pro</button>
+          <button onClick={() => exportSelected(selectedList)} style={{ padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: C.blue + '22', color: C.blue, border: `1px solid ${C.blue}44` }}>Export</button>
+        </div>
+      )}
+
+      {/* Table */}
+      <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${C.dim}` }}>
+        <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', minWidth: 820 }}>
           <thead>
-            <tr style={{ background: '#0d1117', borderBottom: '1px solid #1a2332' }}>
-              <th className="px-4 py-3 w-10">
-                <input
-                  type="checkbox"
-                  checked={allChecked}
-                  ref={(el) => { if (el) el.indeterminate = someChecked && !allChecked }}
-                  onChange={toggleAll}
-                  className="cursor-pointer"
-                  style={{ accentColor: '#3fb950' }}
-                />
+            <tr style={{ background: C.surface, borderBottom: `1px solid ${C.dim}` }}>
+              <th style={{ padding: '12px 16px', width: 36 }}>
+                <input type="checkbox" checked={allChecked} ref={el => { if (el) el.indeterminate = someChecked && !allChecked }} onChange={toggleAll} style={{ accentColor: C.green, cursor: 'pointer' }} />
               </th>
-              {COLS.map((col) => (
-                <th
-                  key={col}
-                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                  style={{ color: '#7d8fa3' }}
-                >
+              {['Member','Plan','Stage','Streak','Points','Status','Risk',''].map(col => (
+                <th key={col} style={{ padding: '12px 16px', textAlign: col === 'Streak' || col === 'Points' ? 'right' : 'left', fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, whiteSpace: 'nowrap' }}>
                   {col}
                 </th>
               ))}
@@ -401,11 +227,7 @@ export default function UsersClient({ users }: Props) {
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td
-                  colSpan={COLS.length + 1}
-                  className="px-4 py-8 text-center text-sm"
-                  style={{ color: '#7d8fa3', background: '#080b0f' }}
-                >
+                <td colSpan={9} style={{ padding: '32px 16px', textAlign: 'center', color: C.muted, background: C.bg }}>
                   No users found
                 </td>
               </tr>
@@ -413,81 +235,59 @@ export default function UsersClient({ users }: Props) {
             {filtered.map((user, i) => {
               const isSuspended = user.status === 'suspended'
               const isSelected = selected.has(user.id)
+              const isPro = (user.plan ?? '').toLowerCase() === 'pro'
               return (
                 <tr
                   key={user.id}
+                  onClick={() => router.push(`/users/${user.id}`)}
                   style={{
-                    background: isSelected ? '#1a233280' : '#080b0f',
-                    borderBottom: i < filtered.length - 1 ? '1px solid #1a2332' : undefined,
+                    background: isSelected ? '#1a233280' : C.bg,
+                    borderBottom: i < filtered.length - 1 ? `1px solid ${C.dim}` : undefined,
+                    cursor: 'pointer',
+                    transition: 'background 0.1s',
                   }}
+                  onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = C.surface }}
+                  onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = C.bg }}
                 >
-                  <td className="px-4 py-3 w-10">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleOne(user.id)}
-                      className="cursor-pointer"
-                      style={{ accentColor: '#3fb950' }}
-                    />
+                  <td style={{ padding: '12px 16px', width: 36 }} onClick={e => e.stopPropagation()}>
+                    <input type="checkbox" checked={isSelected} onChange={() => toggleOne(user.id)} style={{ accentColor: C.green, cursor: 'pointer' }} />
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold shrink-0"
-                        style={{ background: '#1a2332', color: '#3fb950' }}
-                      >
-                        {(user.full_name ?? user.email)[0]?.toUpperCase() ?? '?'}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="truncate" style={{ color: '#e6edf3' }}>
-                          {user.full_name ?? '—'}
-                        </p>
-                        <p className="text-xs truncate" style={{ color: '#7d8fa3' }}>
-                          {user.email}
-                        </p>
+                  <td style={{ padding: '12px 16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <Avatar name={user.full_name ?? user.email} plan={user.plan} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ color: C.text, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.full_name ?? '—'}</div>
+                        <div style={{ fontSize: 11, color: C.muted2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <Badge color={(user.plan ?? '').toLowerCase() === 'pro' ? '#bc8cff' : '#7d8fa3'}>
-                      {user.plan ?? 'free'}
-                    </Badge>
+                  <td style={{ padding: '12px 16px' }}>
+                    <Badge color={isPro ? C.purple : C.muted}>{user.plan ?? 'free'}</Badge>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: '#e6edf3' }}>
-                    {user.stage ?? '—'}
+                  <td style={{ padding: '12px 16px', color: C.muted, whiteSpace: 'nowrap' }}>{user.stage ?? '—'}</td>
+                  <td style={{ padding: '12px 16px', textAlign: 'right', color: C.green, fontFamily: 'monospace', fontWeight: 600 }}>{user.streak ?? 0}</td>
+                  <td style={{ padding: '12px 16px', textAlign: 'right', color: C.blue, fontFamily: 'monospace', fontWeight: 600 }}>{(user.points ?? 0).toLocaleString()}</td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <Badge color={isSuspended ? C.red : C.green}>{user.status ?? 'active'}</Badge>
                   </td>
-                  <td className="px-4 py-3 font-medium" style={{ color: '#3fb950' }}>
-                    {user.streak ?? 0}
+                  <td style={{ padding: '12px 16px' }}>
+                    <Badge color={getRiskColor(user.riskScore)}>{getRiskLabel(user.riskScore)} · {user.riskScore}</Badge>
                   </td>
-                  <td className="px-4 py-3 font-medium" style={{ color: '#58a6ff' }}>
-                    {user.points ?? 0}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge color={isSuspended ? '#f85149' : '#3fb950'}>
-                      {user.status ?? 'active'}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge color={getRiskColor(user.riskScore)}>
-                      {getRiskLabel(user.riskScore)} · {user.riskScore}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <Btn variant="ghost" onClick={() => setSelectedUser(user)}>
+                  <td style={{ padding: '12px 16px' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button
+                        onClick={() => router.push(`/users/${user.id}`)}
+                        style={{ padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'transparent', border: `1px solid ${C.dim2}`, color: C.muted }}
+                      >
                         View
-                      </Btn>
-                      <Btn
-                        variant={isSuspended ? 'ghost' : 'danger'}
-                        onClick={() =>
-                          startTransition(async () => {
-                            await (isSuspended ? restoreUser(user.id) : suspendUser(user.id))
-                          })
-                        }
+                      </button>
+                      <button
                         disabled={isPending}
+                        onClick={() => startTransition(async () => { await (isSuspended ? restoreUser(user.id) : suspendUser(user.id)) })}
+                        style={{ padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: isSuspended ? 'transparent' : C.red + '22', border: `1px solid ${isSuspended ? C.dim2 : C.red + '44'}`, color: isSuspended ? C.muted : C.red }}
                       >
                         {isSuspended ? 'Restore' : 'Suspend'}
-                      </Btn>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -496,10 +296,6 @@ export default function UsersClient({ users }: Props) {
           </tbody>
         </table>
       </div>
-
-      {selectedUser && (
-        <UserDrawer user={selectedUser} onClose={() => setSelectedUser(null)} />
-      )}
     </div>
   )
 }

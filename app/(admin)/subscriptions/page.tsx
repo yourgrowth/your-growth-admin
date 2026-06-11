@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import PageHeader from '@/components/ui/PageHeader'
 import StatCard from '@/components/ui/StatCard'
 import Badge from '@/components/ui/Badge'
+import ProgressBar from '@/components/ui/ProgressBar'
 import ChurnClient, { type ChurnUser } from './ChurnClient'
 
 const MONTH_MS = 30 * 24 * 60 * 60 * 1000
@@ -16,15 +18,20 @@ function project(mrr: number, rate: number, months: number) {
 
 export default async function SubscriptionsPage() {
   const supabase = await createClient()
+  const admin = createAdminClient()
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
 
-  const [{ data: profiles }, { data: recentCompletions }] = await Promise.all([
+  const [{ data: profiles }, { data: recentCompletions }, trialStartResult, lapsedResult] = await Promise.all([
     supabase.from('profiles').select('*'),
     supabase
-      .from('habit_completions')
+      .from('completions')
       .select('user_id')
       .gte('completed_at', sevenDaysAgo),
+    Promise.resolve(admin.from('profiles').select('id', { count: 'exact', head: true }).gte('created_at', thirtyDaysAgo)).catch(() => ({ count: 0 })),
+    Promise.resolve(admin.from('profiles').select('id, full_name, plan, last_sign_in_at').eq('plan', 'Pro').lte('last_sign_in_at', sixtyDaysAgo).limit(20)).catch(() => ({ data: null })),
   ])
 
   const all = profiles ?? []
@@ -35,6 +42,10 @@ export default async function SubscriptionsPage() {
   const total = all.length
   const proPct = total > 0 ? ((proCount / total) * 100).toFixed(1) : '0'
   const currentMRR = proCount * 7.99
+
+  const trialSignups = (trialStartResult as { count: number | null }).count ?? 0
+  type LapsedUser = { id: string; full_name: string | null; plan: string | null; last_sign_in_at: string | null }
+  const lapsedUsers = ((lapsedResult as { data: LapsedUser[] | null }).data ?? [])
 
   // ── Revenue Forecasting ──────────────────────────────────────────────────
   const thisMonth = new Date().toISOString().slice(0, 7)
@@ -118,6 +129,70 @@ export default async function SubscriptionsPage() {
         <StatCard label="Pro Percentage" value={`${proPct}%`} color="#58a6ff" />
         <StatCard label="MRR" value={fmt(currentMRR)} color="#3fb950" />
       </div>
+
+      {/* ── Subscription Breakdown ────────────────────────────────────── */}
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: '#7d8fa3' }}>Plan Split</p>
+          <div className="flex flex-col gap-2">
+            {[
+              { label: 'Pro', count: proCount, color: '#bc8cff' },
+              { label: 'Free', count: freeCount, color: '#7d8fa3' },
+            ].map(({ label, count, color }) => (
+              <div key={label}>
+                <div className="flex justify-between text-xs mb-1">
+                  <span style={{ color }}>{label}</span>
+                  <span style={{ color: '#7d8fa3' }}>{total > 0 ? Math.round((count / total) * 100) : 0}%</span>
+                </div>
+                <ProgressBar value={total > 0 ? (count / total) * 100 : 0} color={color} />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#7d8fa3' }}>New Signups (30d)</p>
+          <p className="text-3xl font-bold" style={{ color: '#3fb950' }}>{trialSignups}</p>
+          <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>All plans</p>
+        </div>
+        <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#7d8fa3' }}>Trial Conversion</p>
+          <p className="text-3xl font-bold" style={{ color: '#58a6ff' }}>—</p>
+          <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>Via RevenueCat</p>
+        </div>
+        <div className="rounded-lg p-5" style={{ background: '#0d1117', border: '1px solid #1a2332' }}>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#7d8fa3' }}>Lapsed Pro (60d)</p>
+          <p className="text-3xl font-bold" style={{ color: lapsedUsers.length > 0 ? '#f85149' : '#3fb950' }}>{lapsedUsers.length}</p>
+          <p className="text-xs mt-1" style={{ color: '#7d8fa3' }}>Active sub, no login</p>
+        </div>
+      </div>
+
+      {lapsedUsers.length > 0 && (
+        <div className="rounded-lg overflow-hidden mb-8" style={{ border: '1px solid #f85149' }}>
+          <div className="px-4 py-3" style={{ background: '#0d1117', borderBottom: '1px solid #f85149' }}>
+            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#f85149' }}>At-Risk Pro Users — No Login in 60 Days</p>
+          </div>
+          <table className="w-full text-sm">
+            <thead>
+              <tr style={{ background: '#0d1117', borderBottom: '1px solid #1a2332' }}>
+                {['User', 'Plan', 'Last Seen'].map((col) => (
+                  <th key={col} className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#7d8fa3' }}>{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {lapsedUsers.map((u, i) => (
+                <tr key={u.id} style={{ background: '#080b0f', borderBottom: i < lapsedUsers.length - 1 ? '1px solid #1a2332' : undefined }}>
+                  <td className="px-4 py-2.5 font-medium" style={{ color: '#e6edf3' }}>{u.full_name ?? '—'}</td>
+                  <td className="px-4 py-2.5"><span className="text-xs px-2 py-0.5 rounded" style={{ background: '#bc8cff22', color: '#bc8cff', border: '1px solid #bc8cff' }}>Pro</span></td>
+                  <td className="px-4 py-2.5 text-xs whitespace-nowrap" style={{ color: '#f85149' }}>
+                    {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString() : 'Never'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* ── Pro Subscribers Table ─────────────────────────────────────── */}
       <div

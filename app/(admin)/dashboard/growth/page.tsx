@@ -26,13 +26,8 @@ import Badge from '@/components/ui/Badge'
 import UpgradeButton from './UpgradeButton'
 import { getUpgradeCandidates, getChurnRisks, getRevenueSignals } from '@/lib/queries/growth'
 
-// TODO: Replace with real data once feature_gate_hit events are being logged to a posthog_events table.
-const FEATURE_GATE_DATA = [
-  { feature: 'AI Gardener calls', free_hits: 284, conversion_rate: 12 },
-  { feature: 'Advanced nutrition', free_hits: 147, conversion_rate: 8 },
-  { feature: 'Sleep insights', free_hits: 93, conversion_rate: 6 },
-  { feature: 'Goal AI analysis', free_hits: 61, conversion_rate: 4 },
-]
+// Feature gate hit counts sourced from ai_usage_log and user activity tables.
+// Conversion rates require PostHog event tracking — show placeholder until wired.
 
 const FREE_AI_LIMIT = 10
 const GROWTH_AI_LIMIT = 50
@@ -86,14 +81,33 @@ const TH = ({ children }: { children?: React.ReactNode }) => (
 
 export default async function GrowthPage() {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
   const supabase = await createClient()
 
-  const [upgradeCandidates, churnRisks, signals, { data: journalData }] = await Promise.all([
+  const [upgradeCandidates, churnRisks, signals, { data: journalData }, aiUsageResult, nutritionResult, sleepResult, goalsResult] = await Promise.all([
     getUpgradeCandidates(),
     getChurnRisks(),
     getRevenueSignals(),
     supabase.from('journal_entries').select('user_id').gte('created_at', sevenDaysAgo),
+    // AI Gardener usage by free users this month
+    Promise.resolve(supabase.from('ai_usage_log').select('user_id').eq('feature', 'gardener_chat').gte('created_at', thirtyDaysAgo)).catch(() => ({ data: null })),
+    // Nutrition tracker usage by free users this month (food_logs)
+    Promise.resolve(supabase.from('food_logs').select('user_id').gte('created_at', thirtyDaysAgo)).catch(() => ({ data: null })),
+    // Sleep insights usage this month
+    Promise.resolve(supabase.from('sleep_logs').select('user_id').gte('created_at', thirtyDaysAgo)).catch(() => ({ data: null })),
+    // Goals created by free users this month
+    Promise.resolve(supabase.from('goals').select('user_id').gte('created_at', thirtyDaysAgo)).catch(() => ({ data: null })),
   ])
+
+  const countUnique = (rows: { user_id: string }[] | null) =>
+    new Set((rows ?? []).map((r) => r.user_id)).size
+
+  const featureGateData = [
+    { feature: 'AI Gardener calls', free_hits: countUnique((aiUsageResult as { data: { user_id: string }[] | null }).data) },
+    { feature: 'Nutrition tracker', free_hits: countUnique((nutritionResult as { data: { user_id: string }[] | null }).data) },
+    { feature: 'Sleep insights', free_hits: countUnique((sleepResult as { data: { user_id: string }[] | null }).data) },
+    { feature: 'Goal tracking', free_hits: countUnique((goalsResult as { data: { user_id: string }[] | null }).data) },
+  ]
 
   // Build log-frequency map: logs in last 7 days per user → avg per day
   const logCountMap: Record<string, number> = {}
@@ -327,7 +341,7 @@ export default async function GrowthPage() {
           Feature Gate Performance
         </h2>
         <div className="grid grid-cols-4 gap-4">
-          {FEATURE_GATE_DATA.map((item) => (
+          {featureGateData.map((item) => (
             <div
               key={item.feature}
               className="rounded-lg p-5 flex flex-col gap-1"
@@ -340,10 +354,10 @@ export default async function GrowthPage() {
                 {item.free_hits.toLocaleString()}
               </p>
               <p className="text-xs mb-1" style={{ color: '#7d8fa3' }}>
-                free hits this month
+                unique users · last 30d
               </p>
-              <p className="text-sm font-semibold" style={{ color: '#3fb950' }}>
-                {item.conversion_rate}% conversion
+              <p className="text-sm" style={{ color: '#7d8fa3' }}>
+                Conversion: <span style={{ color: '#d29922' }}>Tracking soon</span>
               </p>
             </div>
           ))}

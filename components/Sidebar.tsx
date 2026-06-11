@@ -2,152 +2,225 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import GlobalSearch from './GlobalSearch'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { signOut } from '@/app/actions/auth'
+import AdminIcon from './AdminIcon'
 
-function ChartIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style={{ flexShrink: 0 }}>
-      <path d="M0 11h2v4H0v-4zm4-4h2v8H4V7zm4-4h2v12H8V3zm4-3h2v15h-2V0z" />
-    </svg>
-  )
+const C = {
+  bg: '#070a0e', surface: '#0d1117', dim: '#1a2332', dim2: '#243044',
+  text: '#e6edf3', muted: '#7d8fa3', muted2: '#5a6b7d', green: '#3fb950',
 }
 
-type NavItem = { label: string; href: string; icon?: React.ReactNode }
+type NavItem = { label: string; href: string; icon: string }
 
 const nav: { group: string; items: NavItem[] }[] = [
   {
     group: 'Overview',
     items: [
-      { label: 'Command Centre', href: '/dashboard' },
+      { label: 'Command Centre', href: '/dashboard', icon: 'grid' },
     ],
   },
   {
     group: 'Analytics',
     items: [
-      { label: 'Analytics', href: '/analytics' },
-      { label: 'Onboarding', href: '/onboarding' },
+      { label: 'Analytics', href: '/analytics', icon: 'trend' },
+      { label: 'Onboarding', href: '/onboarding', icon: 'funnel' },
+      { label: 'Growth Intelligence', href: '/dashboard/growth', icon: 'chart' },
     ],
   },
   {
     group: 'Users',
     items: [
-      { label: 'Users', href: '/users' },
-      { label: 'Habits', href: '/habits' },
-      { label: 'Goals', href: '/goals' },
-      { label: 'Journal', href: '/journal' },
+      { label: 'Users', href: '/users', icon: 'users' },
+      { label: 'Habits', href: '/habits', icon: 'check' },
+      { label: 'Goals', href: '/goals', icon: 'target' },
+      { label: 'Journal', href: '/journal', icon: 'book' },
+      { label: 'Bonsai', href: '/bonsai', icon: 'tree' },
     ],
   },
   {
     group: 'Content',
     items: [
-      { label: 'Growth Bible', href: '/content' },
-      { label: 'The Gardener', href: '/gardener' },
-      { label: 'Nutrition', href: '/nutrition' },
+      { label: 'Growth Bible', href: '/content', icon: 'play' },
+      { label: 'The Gardener', href: '/gardener', icon: 'leaf' },
+      { label: 'AI Usage', href: '/ai-usage', icon: 'cpu' },
+      { label: 'Nutrition', href: '/nutrition', icon: 'card' },
     ],
   },
   {
     group: 'Business',
     items: [
-      { label: 'Subscriptions', href: '/subscriptions' },
-      { label: 'Notifications', href: '/notifications' },
-      { label: 'Growth Intelligence', href: '/dashboard/growth', icon: <ChartIcon /> },
+      { label: 'Subscriptions', href: '/subscriptions', icon: 'card' },
+      { label: 'Notifications', href: '/notifications', icon: 'bell' },
     ],
   },
   {
     group: 'Operations',
     items: [
-      { label: 'Activity', href: '/activity' },
-      { label: 'Support', href: '/support' },
+      { label: 'Activity', href: '/activity', icon: 'pulse' },
+      { label: 'Support', href: '/support', icon: 'chat' },
+      { label: 'Safety', href: '/safety', icon: 'shield' },
     ],
   },
   {
     group: 'System',
     items: [
-      { label: 'Settings', href: '/settings' },
-      { label: 'Security', href: '/settings/security' },
-      { label: 'Health', href: '/health' },
+      { label: 'Settings', href: '/settings', icon: 'gear' },
+      { label: 'Security', href: '/settings/security', icon: 'shield' },
+      { label: 'Feature Flags', href: '/feature-flags', icon: 'flag' },
+      { label: 'Health', href: '/health', icon: 'life' },
     ],
   },
 ]
 
-export default function Sidebar() {
+function NavLink({ item }: { item: NavItem }) {
   const pathname = usePathname()
+  const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'))
+  return (
+    <Link
+      href={item.href}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '7px 9px',
+        borderRadius: 7,
+        fontSize: 12.5,
+        fontWeight: active ? 600 : 500,
+        color: active ? C.green : C.muted,
+        background: active ? 'rgba(63,185,80,0.1)' : 'transparent',
+        position: 'relative',
+        textDecoration: 'none',
+        transition: 'color 0.12s, background 0.12s',
+      }}
+    >
+      {active && (
+        <span style={{
+          position: 'absolute',
+          left: 0,
+          top: 7,
+          bottom: 7,
+          width: 2.5,
+          borderRadius: 2,
+          background: C.green,
+        }} />
+      )}
+      <AdminIcon name={item.icon} size={14} />
+      {item.label}
+    </Link>
+  )
+}
+
+function AdminFooter() {
+  const [name, setName] = useState('Admin')
+  const [initial, setInitial] = useState('A')
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          const n = data?.display_name ?? user.email?.split('@')[0] ?? 'Admin'
+          setName(n)
+          setInitial(n.charAt(0).toUpperCase())
+        })
+    })
+  }, [])
 
   return (
+    <div style={{ padding: 12, borderTop: `1px solid ${C.dim}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{
+        width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+        background: 'linear-gradient(135deg,#3fb950,#1f6f33)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 13, fontWeight: 700, color: 'white',
+      }}>
+        {initial}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
+        <div style={{ fontSize: 10.5, color: C.muted }}>Founder · Admin</div>
+      </div>
+      <form action={signOut}>
+        <button
+          type="submit"
+          title="Sign out"
+          style={{ background: 'transparent', border: 'none', color: C.muted, cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center' }}
+        >
+          <AdminIcon name="logout" size={14} />
+        </button>
+      </form>
+    </div>
+  )
+}
+
+export default function Sidebar() {
+  return (
     <aside
-      className="flex flex-col shrink-0 h-full overflow-y-auto"
-      style={{ width: 224, background: '#0d1117', borderRight: '1px solid #1a2332' }}
+      style={{
+        width: 230,
+        flexShrink: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        overflowY: 'auto',
+        background: C.surface,
+        borderRight: `1px solid ${C.dim}`,
+      }}
     >
-      <div
-        className="flex flex-col gap-0.5 px-4 py-5"
-        style={{ borderBottom: '1px solid #1a2332' }}
-      >
-        <span className="text-sm font-bold" style={{ color: '#3fb950' }}>
-          YOUR GROWTH
-        </span>
-        <span className="text-xs" style={{ color: '#7d8fa3' }}>
-          ADMIN PANEL
-        </span>
+      {/* Logo */}
+      <div style={{ padding: '16px 14px 14px', borderBottom: `1px solid ${C.dim}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+            background: 'linear-gradient(135deg,#3fb950,#1f6f33)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22v-7M8 15a4 4 0 0 1-1-7.9A5 5 0 0 1 17 6a4 4 0 0 1-1 9z"/>
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, letterSpacing: '0.02em' }}>YOUR GROWTH</div>
+            <div style={{ fontSize: 10, color: C.muted, letterSpacing: '0.13em' }}>ADMIN PANEL</div>
+          </div>
+        </div>
       </div>
 
-      <GlobalSearch />
-
-      <nav className="flex flex-col gap-6 px-3 py-4 flex-1">
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 0 }}>
         {nav.map(({ group, items }) => (
-          <div key={group}>
-            <p
-              className="px-2 mb-1 text-xs font-semibold uppercase tracking-wider"
-              style={{ color: '#7d8fa3' }}
-            >
+          <div key={group} style={{ marginBottom: 14 }}>
+            <p style={{
+              fontSize: 9.5,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: C.muted2,
+              padding: '0 9px',
+              marginBottom: 4,
+            }}>
               {group}
             </p>
-            <ul className="flex flex-col gap-0.5">
-              {items.map(({ label, href, icon }) => {
-                const active = pathname === href
-                return (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      className="flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition-colors"
-                      style={{
-                        color: active ? '#3fb950' : '#e6edf3',
-                        background: active ? 'rgba(63,185,80,0.1)' : 'transparent',
-                      }}
-                    >
-                      {icon}
-                      {label}
-                    </Link>
-                  </li>
-                )
-              })}
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {items.map((item) => (
+                <li key={item.href}>
+                  <NavLink item={item} />
+                </li>
+              ))}
             </ul>
           </div>
         ))}
       </nav>
 
-      <div className="px-3 py-4" style={{ borderTop: '1px solid #1a2332' }}>
-        <form action={signOut}>
-          <button
-            type="submit"
-            className="flex items-center gap-2 w-full px-2 py-1.5 rounded text-sm transition-colors"
-            style={{ color: '#7d8fa3' }}
-            onMouseEnter={e => {
-              ;(e.currentTarget as HTMLButtonElement).style.color = '#e6edf3'
-              ;(e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.05)'
-            }}
-            onMouseLeave={e => {
-              ;(e.currentTarget as HTMLButtonElement).style.color = '#7d8fa3'
-              ;(e.currentTarget as HTMLButtonElement).style.background = 'transparent'
-            }}
-          >
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style={{ flexShrink: 0 }}>
-              <path d="M10 1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h6v-1.5H4.5v-11H10V1zm2.854 4.646-1.5 1.5L12.207 8H6v1.5h6.207l-.853.854 1.06 1.06L14.914 8.5a.75.75 0 0 0 0-1.06l-2-2z" />
-            </svg>
-            Sign out
-          </button>
-        </form>
-      </div>
+      {/* Footer */}
+      <AdminFooter />
     </aside>
   )
 }

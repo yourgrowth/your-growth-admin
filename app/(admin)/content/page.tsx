@@ -33,15 +33,15 @@ export default async function ContentPage() {
     { data: videos },
     { data: watchEvents },
     { data: watchHistory },
-    { data: playlists },
-    { data: abTests },
   ] = await Promise.all([
     supabase.from('growth_bible_videos').select('*').order('sort_order', { ascending: true }),
     supabase.from('video_watch_events').select('video_id, watch_percentage'),
     supabase.from('video_watch_history').select('user_id, video_id, watched_at'),
-    supabase.from('playlists').select('*').order('created_at', { ascending: false }),
-    supabase.from('content_ab_tests').select('*').order('created_at', { ascending: false }),
   ])
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const playlists: any[] = []
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const abTests: any[] = []
 
   // Per-video watch stats from video_watch_events
   const statsMap = new Map<string, number[]>()

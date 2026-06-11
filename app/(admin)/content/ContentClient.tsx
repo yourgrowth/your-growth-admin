@@ -46,11 +46,13 @@ function getWinner(test: ContentAbTest): 'a' | 'b' | null {
   return null
 }
 
-type Tab = 'videos' | 'playlists' | 'abtests'
+type Tab = 'videos' | 'playlists' | 'abtests' | 'performance' | 'correlation'
 const TABS: { key: Tab; label: string }[] = [
   { key: 'videos', label: 'Videos' },
   { key: 'playlists', label: 'Playlists' },
   { key: 'abtests', label: 'A/B Tests' },
+  { key: 'performance', label: 'Performance' },
+  { key: 'correlation', label: 'Outcomes' },
 ]
 
 export default function ContentClient({ videosWithStats, suggestedPlaylists, playlists, abTests }: Props) {
@@ -216,9 +218,15 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
       {/* ── PLAYLISTS TAB ── */}
       {tab === 'playlists' && (
         <div className="space-y-8">
+          <div className="rounded-lg p-6 text-center" style={{ background: C.surface, border: `1px dashed ${C.border}` }}>
+            <p className="text-sm font-medium mb-1" style={{ color: C.text }}>Playlists — Coming Soon</p>
+            <p className="text-xs" style={{ color: C.muted }}>
+              Curated playlists will be available once the playlists feature is built. Suggested playlists from co-watch data are shown below.
+            </p>
+          </div>
           <section>
             <h2 className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: C.muted }}>
-              Suggested Playlists
+              Suggested Playlists (auto-generated from co-watch data)
             </h2>
             {suggestedPlaylists.length === 0 ? (
               <p className="text-sm" style={{ color: C.muted }}>
@@ -245,69 +253,20 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
             )}
           </section>
 
-          <section>
-            <h2 className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: C.muted }}>
-              Saved Playlists
-            </h2>
-            {playlists.length === 0 ? (
-              <p className="text-sm" style={{ color: C.muted }}>No playlists saved yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {playlists.map(pl => (
-                  <div key={pl.id} className="rounded-lg p-4" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
-                    <p className="text-sm font-medium mb-1" style={{ color: C.text }}>{pl.name}</p>
-                    <p className="text-xs mb-3" style={{ color: C.muted }}>{pl.video_ids.length} video{pl.video_ids.length !== 1 ? 's' : ''}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {pl.video_ids.map(id => (
-                        <span key={id} className="text-xs px-2 py-0.5 rounded" style={{ background: C.bg, color: C.muted, border: `1px solid ${C.border}` }}>
-                          {videoMap.get(id) ?? id.slice(0, 8) + '…'}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
         </div>
       )}
 
       {/* ── A/B TESTS TAB ── */}
       {tab === 'abtests' && (
         <div className="space-y-6">
-          {showAbForm && (
-            <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
-              <p className="text-sm font-semibold mb-4" style={{ color: C.text }}>New A/B Test</p>
-              <div className="space-y-4 mb-4">
-                <div>
-                  <label className="block text-xs mb-1.5" style={{ color: C.muted }}>Video</label>
-                  <select value={abVideoId} onChange={e => setAbVideoId(e.target.value)} className="w-full rounded px-3 py-2 text-sm outline-none" style={inp}>
-                    <option value="">Select a video…</option>
-                    {videosWithStats.map(v => <option key={v.id} value={v.id}>{v.title}</option>)}
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs mb-1.5" style={{ color: C.muted }}>Variant A Title</label>
-                    <input value={abVariantA} onChange={e => setAbVariantA(e.target.value)} className="w-full rounded px-3 py-2 text-sm outline-none" style={inp} placeholder="Original title" />
-                  </div>
-                  <div>
-                    <label className="block text-xs mb-1.5" style={{ color: C.muted }}>Variant B Title</label>
-                    <input value={abVariantB} onChange={e => setAbVariantB(e.target.value)} className="w-full rounded px-3 py-2 text-sm outline-none" style={inp} placeholder="Alternative title" />
-                  </div>
-                </div>
-              </div>
-              <Btn onClick={handleCreateAbTest} disabled={isPending || !abVideoId || !abVariantA.trim() || !abVariantB.trim()}>
-                {isPending ? 'Creating…' : 'Create Test'}
-              </Btn>
-            </div>
-          )}
-
-          {abTests.length === 0 ? (
-            <p className="text-sm" style={{ color: C.muted }}>
-              No A/B tests yet. Create one to compare title variants.
+          <div className="rounded-lg p-6 text-center" style={{ background: C.surface, border: `1px dashed ${C.border}` }}>
+            <p className="text-sm font-medium mb-1" style={{ color: C.text }}>A/B Tests — Coming Soon</p>
+            <p className="text-xs" style={{ color: C.muted }}>
+              Title variant testing will be available in a future release. No A/B test data is being collected yet.
             </p>
-          ) : (
+          </div>
+
+          {false && (
             <div className="space-y-3">
               {abTests.map(test => {
                 const winner = getWinner(test)
@@ -352,6 +311,106 @@ export default function ContentClient({ videosWithStats, suggestedPlaylists, pla
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── PERFORMANCE TAB ── */}
+      {tab === 'performance' && (
+        <div className="flex flex-col gap-6">
+          {/* Top line stats */}
+          <div className="grid grid-cols-4 gap-4">
+            {(() => {
+              const published = videosWithStats.filter((v) => v.is_published)
+              const withData = published.filter((v) => v.avg_watch_pct != null)
+              const avgWatch = withData.length > 0 ? Math.round(withData.reduce((s, v) => s + (v.avg_watch_pct ?? 0), 0) / withData.length) : null
+              const avgCompletion = withData.length > 0 ? Math.round(withData.reduce((s, v) => s + (v.completion_rate ?? 0), 0) / withData.length) : null
+              const mostWatched = published.sort((a, b) => (b.avg_watch_pct ?? 0) - (a.avg_watch_pct ?? 0))[0]
+              const leastWatched = published.filter((v) => v.avg_watch_pct != null).sort((a, b) => (a.avg_watch_pct ?? 100) - (b.avg_watch_pct ?? 100))[0]
+              return (
+                <>
+                  <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
+                    <p className="text-xs uppercase tracking-wider mb-2" style={{ color: C.muted }}>Avg Watch %</p>
+                    <p className="text-2xl font-bold" style={{ color: avgWatch != null ? C.cyan : C.muted }}>{avgWatch != null ? `${avgWatch}%` : '—'}</p>
+                  </div>
+                  <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
+                    <p className="text-xs uppercase tracking-wider mb-2" style={{ color: C.muted }}>Avg Completion Rate</p>
+                    <p className="text-2xl font-bold" style={{ color: avgCompletion != null ? C.green : C.muted }}>{avgCompletion != null ? `${avgCompletion}%` : '—'}</p>
+                  </div>
+                  <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
+                    <p className="text-xs uppercase tracking-wider mb-2" style={{ color: C.muted }}>Most Watched</p>
+                    <p className="text-sm font-medium truncate" style={{ color: C.green }}>{mostWatched?.title ?? '—'}</p>
+                    {mostWatched?.avg_watch_pct != null && <p className="text-xs mt-1" style={{ color: C.muted }}>{mostWatched.avg_watch_pct}% avg</p>}
+                  </div>
+                  <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
+                    <p className="text-xs uppercase tracking-wider mb-2" style={{ color: C.muted }}>Least Watched</p>
+                    <p className="text-sm font-medium truncate" style={{ color: C.amber }}>{leastWatched?.title ?? '—'}</p>
+                    {leastWatched?.avg_watch_pct != null && <p className="text-xs mt-1" style={{ color: C.muted }}>{leastWatched.avg_watch_pct}% avg</p>}
+                  </div>
+                </>
+              )
+            })()}
+          </div>
+
+          {/* Per-video bar chart */}
+          <div className="rounded-lg overflow-hidden" style={{ border: `1px solid ${C.border}` }}>
+            <div className="px-4 py-3" style={{ background: C.surface, borderBottom: `1px solid ${C.border}` }}>
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: C.muted }}>Completion Rate by Video (published only)</p>
+            </div>
+            <div className="p-5 flex flex-col gap-3" style={{ background: C.bg }}>
+              {videosWithStats.filter((v) => v.is_published).length === 0 ? (
+                <p className="text-xs" style={{ color: C.muted }}>No published videos</p>
+              ) : videosWithStats.filter((v) => v.is_published).sort((a, b) => (b.completion_rate ?? 0) - (a.completion_rate ?? 0)).map((v) => (
+                <div key={v.id}>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="truncate flex-1 mr-4" style={{ color: C.text }}>{v.title}</span>
+                    <span style={{ color: C.muted }}>
+                      {v.completion_rate != null ? `${v.completion_rate}%` : '—'}
+                      {v.avg_watch_pct != null ? ` · ${v.avg_watch_pct}% avg watch` : ''}
+                    </span>
+                  </div>
+                  <ProgressBar
+                    value={v.completion_rate ?? 0}
+                    color={
+                      (v.completion_rate ?? 0) >= 60 ? C.green :
+                      (v.completion_rate ?? 0) >= 30 ? C.amber : C.red
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── OUTCOMES / CORRELATION TAB ── */}
+      {tab === 'correlation' && (
+        <div className="flex flex-col gap-6">
+          <div className="rounded-lg p-5" style={{ background: C.surface, border: `1px solid ${C.border}` }}>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: C.muted }}>Content Correlation with Outcomes</p>
+            <p className="text-xs mb-4" style={{ color: C.muted }}>
+              This section will show correlations between video completions and user outcomes (habit streaks, mood, goal progress).
+              Data is populated by the intelligence-pipeline edge function via the user_models table.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { label: 'Growth Bible → Habit Consistency', note: 'Users who complete 3+ videos/week' },
+                { label: 'Growth Bible → Mood Score', note: 'Based on journal mood before/after' },
+                { label: 'Topic completion → Goal completion', note: 'Same-topic goals' },
+                { label: 'Watch time → App retention', note: '30-day active rate' },
+              ].map(({ label, note }) => (
+                <div key={label} className="rounded-lg p-4" style={{ background: C.bg, border: `1px solid ${C.border}` }}>
+                  <p className="text-sm font-medium mb-1" style={{ color: C.text }}>{label}</p>
+                  <p className="text-xs" style={{ color: C.muted }}>{note}</p>
+                  <p className="text-xs mt-2" style={{ color: C.muted }}>
+                    r = — · <span style={{ color: C.muted }}>requires user_models data</span>
+                  </p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs mt-4" style={{ color: C.muted }}>
+              Full correlation data will populate once the intelligence pipeline has run for 14+ days.
+            </p>
+          </div>
         </div>
       )}
 
