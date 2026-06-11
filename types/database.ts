@@ -3,6 +3,18 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Profile = {
   id: string
   email: string | null
+  // Real bonsai-app column names
+  display_name: string | null
+  subscription_status: string | null
+  total_points: number | null
+  bonsai_stage: number | null
+  onboarding_complete: boolean | null
+  last_opened_at: string | null
+  avatar_url: string | null
+  goals: string[] | null
+  struggles: string[] | null
+  timezone: string | null
+  // Legacy column names kept for backward compat (admin pages reference these)
   full_name: string | null
   username: string | null
   plan: string | null
@@ -13,11 +25,12 @@ export type Profile = {
   is_admin: boolean | null
   warnings: number | null
   country: string | null
+  country_code: string | null
   appeal_status: string | null
   created_at: string
   last_sign_in_at: string | null
   last_active_at: string | null
-  ai_calls_used_this_month: number
+  ai_calls_used_this_month: number | null
 }
 
 export type UserCommunication = {
@@ -291,7 +304,7 @@ export type Database = {
     Tables: {
       profiles: {
         Row: Profile
-        Insert: { id: string; email?: string | null; full_name?: string | null; username?: string | null; plan?: string | null; stage?: string | null; streak?: number | null; points?: number | null; status?: string | null; is_admin?: boolean | null; warnings?: number | null; country?: string | null; appeal_status?: string | null; created_at?: string; last_sign_in_at?: string | null; last_active_at?: string | null; ai_calls_used_this_month?: number }
+        Insert: { id: string; email?: string | null; display_name?: string | null; subscription_status?: string | null; full_name?: string | null; username?: string | null; plan?: string | null; stage?: string | null; streak?: number | null; points?: number | null; total_points?: number | null; bonsai_stage?: number | null; status?: string | null; is_admin?: boolean | null; warnings?: number | null; country?: string | null; country_code?: string | null; appeal_status?: string | null; created_at?: string; last_sign_in_at?: string | null; last_active_at?: string | null; last_opened_at?: string | null; ai_calls_used_this_month?: number | null }
         Update: Partial<Profile>
         Relationships: []
       }
@@ -497,6 +510,48 @@ export type Database = {
         Row: { id: number; active_version: string | null; updated_at: string }
         Insert: { id?: number; active_version?: string | null; updated_at?: string }
         Update: { active_version?: string | null; updated_at?: string }
+        Relationships: []
+      }
+      ai_usage_log: {
+        Row: { id: string; user_id: string | null; feature: string; model: string; input_tokens: number | null; output_tokens: number | null; error: string | null; duration_ms: number | null; created_at: string }
+        Insert: { id?: string; user_id?: string | null; feature: string; model: string; input_tokens?: number | null; output_tokens?: number | null; error?: string | null; duration_ms?: number | null; created_at?: string }
+        Update: Partial<{ feature: string; model: string; input_tokens: number | null; output_tokens: number | null }>
+        Relationships: []
+      }
+      gardener_chat_sessions: {
+        Row: { id: string; user_id: string; started_at: string; ended_at: string | null; message_count: number | null; safety_flags: number | null }
+        Insert: { id?: string; user_id: string; started_at?: string; ended_at?: string | null; message_count?: number | null; safety_flags?: number | null }
+        Update: Partial<{ ended_at: string | null; message_count: number | null }>
+        Relationships: []
+      }
+      gardener_chat_messages: {
+        Row: { id: string; session_id: string; user_id: string; role: string; content: string; created_at: string; safety_flagged: boolean | null; flagged_reason: string | null }
+        Insert: { id?: string; session_id: string; user_id: string; role: string; content: string; created_at?: string; safety_flagged?: boolean | null; flagged_reason?: string | null }
+        Update: Partial<{ safety_flagged: boolean | null; flagged_reason: string | null }>
+        Relationships: []
+      }
+      safety_flag_log: {
+        Row: { id: string; user_id: string | null; session_id: string | null; layer: string | null; action: string | null; trigger_text: string | null; original_response: string | null; source: string | null; action_taken: string | null; reviewed_at: string | null; reviewed_by: string | null; created_at: string }
+        Insert: { id?: string; user_id?: string | null; session_id?: string | null; layer?: string | null; action?: string | null; trigger_text?: string | null; original_response?: string | null; source?: string | null; action_taken?: string | null; reviewed_at?: string | null; reviewed_by?: string | null; created_at?: string }
+        Update: Partial<{ reviewed_at: string | null; reviewed_by: string | null; action_taken: string | null }>
+        Relationships: []
+      }
+      gardener_context_snapshots: {
+        Row: { id: string; user_id: string; snapshot_json: Json; created_at: string; expires_at: string | null }
+        Insert: { id?: string; user_id: string; snapshot_json: Json; created_at?: string; expires_at?: string | null }
+        Update: Partial<{ snapshot_json: Json; expires_at: string | null }>
+        Relationships: []
+      }
+      daily_summaries: {
+        Row: { id: string; user_id: string; date: string; summary_text: string | null; greeting: string | null; pattern_text: string | null; intention_text: string | null; created_at: string; habits_completed: number | null; habits_total: number | null; calories_consumed: number | null; calorie_goal_hit: boolean | null; videos_watched: number | null; progress_score: number | null; sections_json: Json | null; connections_json: Json | null; gardener_phase: string | null; voice_register: string | null; key_action: string | null }
+        Insert: { id?: string; user_id: string; date: string; summary_text?: string | null; greeting?: string | null; pattern_text?: string | null; intention_text?: string | null; created_at?: string }
+        Update: Partial<{ summary_text: string | null; greeting: string | null; pattern_text: string | null; intention_text: string | null }>
+        Relationships: []
+      }
+      user_models: {
+        Row: { id: string; user_id: string; voice_register: string | null; key_action_today: string | null; updated_at: string }
+        Insert: { id?: string; user_id: string; updated_at?: string }
+        Update: Partial<{ voice_register: string | null; key_action_today: string | null; updated_at: string }>
         Relationships: []
       }
     }
