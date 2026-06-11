@@ -52,10 +52,8 @@ export default function ActivityPage() {
     const supabase = createClient()
 
     async function init() {
-      const [{ data: profiles }, { data: habits }] = await Promise.all([
-        supabase.from('profiles').select('id, full_name'),
-        supabase.from('habits').select('id, name'),
-      ])
+      const { data: profiles } = await supabase.from('profiles').select('id, full_name')
+      const { data: habits } = await supabase.from('habits').select('id, name')
       ;(profiles ?? []).forEach((p) => profileMapRef.current.set(p.id, p.full_name ?? 'Unknown'))
       ;(habits ?? []).forEach((h) => habitMapRef.current.set(h.id, h.name))
 

@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import type { ProfileExtended } from '@/types/database'
 import PageHeader from '@/components/ui/PageHeader'
 import AiUsageClient from './AiUsageClient'
 
@@ -17,9 +18,11 @@ export default async function AiUsagePage() {
       .select('*')
       .gte('created_at', thirtyDaysAgo)
       .order('created_at', { ascending: false }),
-    supabase
+    // Cast required: display_name/subscription_status are real DB columns but not
+    // in the base Profile Row type (kept slim to avoid TS template literal depth limits)
+    (supabase
       .from('profiles')
-      .select('id, display_name, subscription_status'),
+      .select('id, display_name, subscription_status')) as unknown as Promise<{ data: Pick<ProfileExtended, 'id' | 'display_name' | 'subscription_status'>[] | null; error: unknown }>,
     supabase
       .from('gardener_chat_messages')
       .select('session_id, role, created_at, content')

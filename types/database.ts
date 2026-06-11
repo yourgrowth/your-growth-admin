@@ -3,8 +3,6 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Profile = {
   id: string
   email: string | null
-  display_name: string | null
-  subscription_status: string | null
   full_name: string | null
   username: string | null
   plan: string | null
@@ -15,13 +13,21 @@ export type Profile = {
   is_admin: boolean | null
   warnings: number | null
   country: string | null
-  country_code: string | null
   appeal_status: string | null
   created_at: string
-  updated_at: string | null
   last_sign_in_at: string | null
   last_active_at: string | null
-  ai_calls_used_this_month: number | null
+  ai_calls_used_this_month: number
+}
+
+// Extended profile fields that exist in the real bonsai-app schema but aren't
+// in the base Profile type to keep Supabase template literal types from hitting
+// TypeScript's complexity limit. Cast to this when querying these columns.
+export type ProfileExtended = Profile & {
+  display_name: string | null
+  subscription_status: string | null
+  country_code: string | null
+  updated_at: string | null
 }
 
 export type UserCommunication = {
@@ -295,7 +301,7 @@ export type Database = {
     Tables: {
       profiles: {
         Row: Profile
-        Insert: { id: string; email?: string | null; display_name?: string | null; subscription_status?: string | null; full_name?: string | null; username?: string | null; plan?: string | null; stage?: string | null; streak?: number | null; points?: number | null; status?: string | null; is_admin?: boolean | null; warnings?: number | null; country?: string | null; country_code?: string | null; appeal_status?: string | null; created_at?: string; updated_at?: string | null; last_sign_in_at?: string | null; last_active_at?: string | null; ai_calls_used_this_month?: number | null }
+        Insert: { id: string; email?: string | null; full_name?: string | null; username?: string | null; plan?: string | null; stage?: string | null; streak?: number | null; points?: number | null; status?: string | null; is_admin?: boolean | null; warnings?: number | null; country?: string | null; appeal_status?: string | null; created_at?: string; last_sign_in_at?: string | null; last_active_at?: string | null; ai_calls_used_this_month?: number }
         Update: Partial<Profile>
         Relationships: []
       }
