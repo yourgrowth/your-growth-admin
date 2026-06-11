@@ -3,18 +3,8 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Profile = {
   id: string
   email: string | null
-  // Real bonsai-app column names
   display_name: string | null
   subscription_status: string | null
-  total_points: number | null
-  bonsai_stage: number | null
-  onboarding_complete: boolean | null
-  last_opened_at: string | null
-  avatar_url: string | null
-  goals: string[] | null
-  struggles: string[] | null
-  timezone: string | null
-  // Legacy column names kept for backward compat (admin pages reference these)
   full_name: string | null
   username: string | null
   plan: string | null
@@ -305,7 +295,7 @@ export type Database = {
     Tables: {
       profiles: {
         Row: Profile
-        Insert: { id: string; email?: string | null; display_name?: string | null; subscription_status?: string | null; full_name?: string | null; username?: string | null; plan?: string | null; stage?: string | null; streak?: number | null; points?: number | null; total_points?: number | null; bonsai_stage?: number | null; status?: string | null; is_admin?: boolean | null; warnings?: number | null; country?: string | null; country_code?: string | null; appeal_status?: string | null; created_at?: string; last_sign_in_at?: string | null; last_active_at?: string | null; last_opened_at?: string | null; ai_calls_used_this_month?: number | null }
+        Insert: { id: string; email?: string | null; display_name?: string | null; subscription_status?: string | null; full_name?: string | null; username?: string | null; plan?: string | null; stage?: string | null; streak?: number | null; points?: number | null; status?: string | null; is_admin?: boolean | null; warnings?: number | null; country?: string | null; country_code?: string | null; appeal_status?: string | null; created_at?: string; updated_at?: string | null; last_sign_in_at?: string | null; last_active_at?: string | null; ai_calls_used_this_month?: number | null }
         Update: Partial<Profile>
         Relationships: []
       }
