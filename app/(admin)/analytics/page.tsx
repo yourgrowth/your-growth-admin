@@ -73,10 +73,11 @@ export default async function AnalyticsPage() {
   })
 
   // ── Feature adoption ──────────────────────────────────────────────────────
-  const habitCount = new Set((habitUsers ?? []).map((r) => r.user_id)).size
-  const goalCount = new Set((goalUsers ?? []).map((r) => r.user_id)).size
-  const gardenerCount = new Set((gardenerUsers ?? []).map((r) => r.user_id)).size
-  const nutritionCount = new Set((nutritionUsers ?? []).map((r) => r.user_id)).size
+  type UserIdRow = { user_id: string }
+  const habitCount = new Set(((habitUsers ?? []) as UserIdRow[]).map((r) => r.user_id)).size
+  const goalCount = new Set(((goalUsers ?? []) as UserIdRow[]).map((r) => r.user_id)).size
+  const gardenerCount = new Set(((gardenerUsers ?? []) as UserIdRow[]).map((r) => r.user_id)).size
+  const nutritionCount = new Set(((nutritionUsers ?? []) as UserIdRow[]).map((r) => r.user_id)).size
 
   const features = [
     { label: 'Habits', count: habitCount, color: '#3fb950' },
