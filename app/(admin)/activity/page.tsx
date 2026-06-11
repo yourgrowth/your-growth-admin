@@ -52,20 +52,30 @@ export default function ActivityPage() {
     const supabase = createClient()
 
     async function init() {
-      const { data: profiles } = await supabase.from('profiles').select('id, full_name')
-      const { data: habits } = await supabase.from('habits').select('id, name')
+      type PRow = { id: string; full_name: string | null }
+      type PRowFull = { id: string; full_name: string | null; created_at: string }
+      type HRow = { id: string; name: string }
+      type CRow = { id: string; user_id: string; habit_id: string | null; completed_at: string }
+      type GRow = { id: string; user_id: string; title: string; created_at: string }
+      type SRow = { id: string; user_id: string; created_at: string }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: profiles } = (await (supabase.from('profiles').select('id, full_name') as any)) as { data: PRow[] | null }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: habits } = (await (supabase.from('habits').select('id, name') as any)) as { data: HRow[] | null }
       ;(profiles ?? []).forEach((p) => profileMapRef.current.set(p.id, p.full_name ?? 'Unknown'))
       ;(habits ?? []).forEach((h) => habitMapRef.current.set(h.id, h.name))
 
       const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
-      const [sups, comps, goals, gardens, meals] = await Promise.all([
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const [sups, comps, goals, gardens, meals] = (await Promise.all([
         supabase.from('profiles').select('id, full_name, created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
         supabase.from('completions').select('id, user_id, habit_id, completed_at').gte('completed_at', since).order('completed_at', { ascending: false }).limit(20),
         supabase.from('goals').select('id, user_id, title, created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
         supabase.from('gardener_summaries').select('id, user_id, created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
         supabase.from('meal_suggestions').select('id, user_id, created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
-      ])
+      ] as any[])) as [{ data: PRowFull[] | null }, { data: CRow[] | null }, { data: GRow[] | null }, { data: SRow[] | null }, { data: SRow[] | null }]
 
       const initial: FeedEvent[] = [
         ...(sups.data ?? []).map((p) => ({
