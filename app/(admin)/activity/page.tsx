@@ -81,7 +81,7 @@ export default function ActivityPage() {
           key: `habit-${c.id}`,
           type: 'habit_completed' as EventType,
           user_name: profileMapRef.current.get(c.user_id) ?? 'Unknown',
-          description: `completed "${habitMapRef.current.get(c.habit_id) ?? 'a habit'}"`,
+          description: `completed "${habitMapRef.current.get(c.habit_id ?? '') ?? 'a habit'}"`,
           timestamp: c.completed_at,
         })),
         ...(goals.data ?? []).map((g) => ({
@@ -145,7 +145,7 @@ export default function ActivityPage() {
           key: `habit-${c.id}-${Date.now()}`,
           type: 'habit_completed',
           user_name: profileMapRef.current.get(c.user_id) ?? 'Unknown',
-          description: `completed "${habitMapRef.current.get(c.habit_id) ?? 'a habit'}"`,
+          description: `completed "${habitMapRef.current.get(c.habit_id ?? '') ?? 'a habit'}"`,
           timestamp: c.completed_at ?? new Date().toISOString(),
         })
       })
