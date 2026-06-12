@@ -6,13 +6,24 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-if (!SUPABASE_URL) throw new Error('Missing required env: NEXT_PUBLIC_SUPABASE_URL')
-if (!ANON_KEY) throw new Error('Missing required env: NEXT_PUBLIC_SUPABASE_ANON_KEY')
-if (!SERVICE_KEY) throw new Error('Missing required env: SUPABASE_SERVICE_ROLE_KEY')
-
 const SESSION_TIMEOUT_MS = 8 * 60 * 60 * 1000
 
 export async function proxy(request: NextRequest) {
+  // Surface missing env clearly instead of crashing the whole middleware
+  // (a module-level throw produces an opaque 500 with no logs on Vercel).
+  const missing = [
+    !SUPABASE_URL && 'NEXT_PUBLIC_SUPABASE_URL',
+    !ANON_KEY && 'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+    !SERVICE_KEY && 'SUPABASE_SERVICE_ROLE_KEY',
+  ].filter(Boolean)
+  if (missing.length > 0) {
+    return new NextResponse(
+      `Server misconfigured — missing environment variable(s): ${missing.join(', ')}. ` +
+        `Set these in Vercel → Settings → Environment Variables (Production) and redeploy.`,
+      { status: 500, headers: { 'content-type': 'text/plain' } },
+    )
+  }
+
   let supabaseResponse = NextResponse.next({ request })
   const { pathname, searchParams } = request.nextUrl
   const isLoginPath = pathname === '/login' || pathname.startsWith('/login/')
