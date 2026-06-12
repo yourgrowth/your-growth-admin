@@ -86,20 +86,12 @@ export default async function AnalyticsPage() {
     { label: 'Nutrition', count: nutritionCount, color: '#39d0d8' },
   ]
 
-  type StageProfile = {
-  stage: string | null
-}
-
-const stageProfiles = (allProfiles ?? []) as StageProfile[]
-
-const stageMap: Record<string, number> = {}
-
-stageProfiles.forEach((p) => {
-  const s = p.stage ?? 'Unknown'
-  stageMap[s] = (stageMap[s] ?? 0) + 1
-})
-
-const stageEntries = Object.entries(stageMap).sort((a, b) => b[1] - a[1]) as [string, number][]
+  const stageMap: Record<string, number> = {}
+  ;(allProfiles ?? []).forEach((p) => {
+    const s = p.stage ?? 'Unknown'
+    stageMap[s] = (stageMap[s] ?? 0) + 1
+  })
+  const stageEntries = Object.entries(stageMap).sort((a, b) => b[1] - a[1]) as [string, number][]
 
   // ── Gardener Chat analytics ───────────────────────────────────────────────
   type Session = { id: string; created_at: string }
