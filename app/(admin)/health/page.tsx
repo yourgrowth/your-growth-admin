@@ -26,7 +26,18 @@ export default async function HealthPage() {
     // Proxy: Anthropic — last ai_usage_log row
     Promise.resolve(admin.from('ai_usage_log').select('created_at').order('created_at', { ascending: false }).limit(1)).catch(() => ({ data: null })),
     // Proxy: RevenueCat — any paid plan update in last 24h
-    Promise.resolve(admin.from('profiles').select('id').neq('subscription_status', 'free').gte('updated_at', oneDayAgo).limit(1)).catch(() => ({ data: null })),
+    // subscription_status & updated_at are real profiles columns omitted from
+    // the base type (see ProfileExtended); cast the builder to filter on them.
+    Promise.resolve(
+      (admin.from('profiles').select('id') as unknown as {
+        neq(col: string, val: string): {
+          gte(col: string, val: string): { limit(n: number): Promise<{ data: unknown }> }
+        }
+      })
+        .neq('subscription_status', 'free')
+        .gte('updated_at', oneDayAgo)
+        .limit(1)
+    ).catch(() => ({ data: null })),
     // Proxy: Mux — any video watch event in last 1h
     Promise.resolve(admin.from('video_watch_events').select('id').gte('created_at', oneHourAgo).limit(1)).catch(() => ({ data: null })),
     // Proxy: Expo Push — any notification sent in last 24h

@@ -551,7 +551,6 @@ export type Database = {
         Update: Partial<{ voice_register: string | null; key_action_today: string | null; currently_returning: boolean | null; data_confidence_score: number | null; active_day_rate: number | null; total_active_days: number | null; updated_at: string }>
         Relationships: []
       }
-    }
       page_views: {
         Row: { id: string; user_id: string | null; page_name: string | null; viewed_at: string; session_id: string | null }
         Insert: { id?: string; user_id?: string | null; page_name?: string | null; viewed_at?: string; session_id?: string | null }

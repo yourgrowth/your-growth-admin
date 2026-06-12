@@ -49,7 +49,7 @@ export default async function BonsaiPage() {
   ])
 
   const allProfiles = (rawProfilesResult.data ?? []) as unknown as BonsaiProfile[]
-  const recentProfiles = recentResult.data ?? []
+  const recentProfiles = (recentResult.data ?? []) as unknown as Array<{ id: string; stage: number | null }>
 
   const profiles = allProfiles ?? []
   const total = profiles.length

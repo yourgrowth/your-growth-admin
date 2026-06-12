@@ -17,6 +17,7 @@ export default async function HabitsPage() {
 
   const completionMap = new Map<string, number>()
   ;(completions ?? []).forEach((c) => {
+    if (!c.habit_id) return
     completionMap.set(c.habit_id, (completionMap.get(c.habit_id) ?? 0) + 1)
   })
 

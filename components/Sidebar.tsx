@@ -121,11 +121,13 @@ function AdminFooter() {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return
-      supabase
+      // display_name is a real profiles column omitted from the base type
+      // (see ProfileExtended); cast the result to read it.
+      ;(supabase
         .from('profiles')
         .select('display_name')
         .eq('id', user.id)
-        .single()
+        .single() as unknown as Promise<{ data: { display_name: string | null } | null }>)
         .then(({ data }) => {
           const n = data?.display_name ?? user.email?.split('@')[0] ?? 'Admin'
           setName(n)
