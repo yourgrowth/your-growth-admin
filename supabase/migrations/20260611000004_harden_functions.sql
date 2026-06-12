@@ -13,11 +13,12 @@
 --    Not used by any application code. Remove it entirely.
 drop function if exists public.exec_sql(text);
 
--- 2. Orphaned helper, not referenced anywhere. Remove it.
-drop function if exists public.rls_auto_enable();
+-- 2. (rls_auto_enable is NOT dropped: it backs the `ensure_rls` event trigger
+--    that auto-enables RLS on new tables. It's handled with the other trigger
+--    functions in steps 3 and 6 below.)
 
--- 3. Trigger functions must not be directly callable via /rest/v1/rpc.
---    Revoking EXECUTE does NOT stop the triggers from firing.
+-- 3. Trigger / event-trigger functions must not be directly callable via
+--    /rest/v1/rpc. Revoking EXECUTE does NOT stop the triggers from firing.
 do $$
 declare
   r record;
@@ -26,7 +27,8 @@ declare
     'sync_admin_profile_fields',
     'sync_journal_mood',
     'gardener_summaries_update',
-    'gardener_summaries_delete'
+    'gardener_summaries_delete',
+    'rls_auto_enable'
   ];
 begin
   for r in
@@ -82,7 +84,8 @@ declare
     'sync_admin_profile_fields',
     'sync_journal_mood',
     'gardener_summaries_update',
-    'gardener_summaries_delete'
+    'gardener_summaries_delete',
+    'rls_auto_enable'
   ];
 begin
   for r in
