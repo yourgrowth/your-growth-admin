@@ -1,5 +1,43 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
+export type Food = {
+  id: string
+  barcode: string | null
+  name: string | null
+  brand: string | null
+  energy_kj: number | null
+  protein_g: number | null
+  fat_total_g: number | null
+  fat_saturated_g: number | null
+  carbs_g: number | null
+  sugar_g: number | null
+  fibre_g: number | null
+  sodium_mg: number | null
+  serving_size_g: number | null
+  source: string | null
+  image_url: string | null
+  raw_data: Json | null
+  is_published: boolean | null
+  flagged_for_review: boolean | null
+  flag_reason: string | null
+  created_at: string
+}
+
+export type ScraperRun = {
+  id: string
+  started_at: string
+  completed_at: string | null
+  status: string | null
+  products_scraped: number | null
+  off_hits: number | null
+  ollama_hits: number | null
+  misses: number | null
+  errors: number | null
+  source: string | null
+  notes: string | null
+  created_at: string
+}
+
 export type Profile = {
   id: string
   email: string | null
@@ -585,6 +623,18 @@ export type Database = {
         Row: { id: string; user_id: string; flag_key: string; enabled: boolean; created_at: string }
         Insert: { id?: string; user_id: string; flag_key: string; enabled?: boolean; created_at?: string }
         Update: Partial<{ enabled: boolean }>
+        Relationships: []
+      }
+      foods: {
+        Row: { id: string; barcode: string | null; name: string | null; brand: string | null; energy_kj: number | null; protein_g: number | null; fat_total_g: number | null; fat_saturated_g: number | null; carbs_g: number | null; sugar_g: number | null; fibre_g: number | null; sodium_mg: number | null; serving_size_g: number | null; source: string | null; image_url: string | null; raw_data: Json | null; is_published: boolean | null; flagged_for_review: boolean | null; flag_reason: string | null; created_at: string }
+        Insert: { id?: string; barcode?: string | null; name?: string | null; brand?: string | null; energy_kj?: number | null; protein_g?: number | null; fat_total_g?: number | null; fat_saturated_g?: number | null; carbs_g?: number | null; sugar_g?: number | null; fibre_g?: number | null; sodium_mg?: number | null; serving_size_g?: number | null; source?: string | null; image_url?: string | null; raw_data?: Json | null; is_published?: boolean | null; flagged_for_review?: boolean | null; flag_reason?: string | null; created_at?: string }
+        Update: Partial<{ barcode: string | null; name: string | null; brand: string | null; energy_kj: number | null; protein_g: number | null; fat_total_g: number | null; fat_saturated_g: number | null; carbs_g: number | null; sugar_g: number | null; fibre_g: number | null; sodium_mg: number | null; serving_size_g: number | null; source: string | null; image_url: string | null; raw_data: Json | null; is_published: boolean | null; flagged_for_review: boolean | null; flag_reason: string | null }>
+        Relationships: []
+      }
+      scraper_runs: {
+        Row: { id: string; started_at: string; completed_at: string | null; status: string | null; products_scraped: number | null; off_hits: number | null; ollama_hits: number | null; misses: number | null; errors: number | null; source: string | null; notes: string | null; created_at: string }
+        Insert: { id?: string; started_at: string; completed_at?: string | null; status?: string | null; products_scraped?: number | null; off_hits?: number | null; ollama_hits?: number | null; misses?: number | null; errors?: number | null; source?: string | null; notes?: string | null; created_at?: string }
+        Update: Partial<{ completed_at: string | null; status: string | null; products_scraped: number | null; off_hits: number | null; ollama_hits: number | null; misses: number | null; errors: number | null; source: string | null; notes: string | null }>
         Relationships: []
       }
     }

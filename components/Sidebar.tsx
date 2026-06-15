@@ -46,6 +46,7 @@ const nav: { group: string; items: NavItem[] }[] = [
       { label: 'The Gardener', href: '/gardener', icon: 'leaf' },
       { label: 'AI Usage', href: '/ai-usage', icon: 'cpu' },
       { label: 'Nutrition', href: '/nutrition', icon: 'card' },
+      { label: 'Food Database', href: '/food-database', icon: 'database' },
     ],
   },
   {
