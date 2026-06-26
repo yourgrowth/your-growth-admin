@@ -9,25 +9,28 @@ import ProductsTab from './tabs/ProductsTab'
 import QualityTab from './tabs/QualityTab'
 import EnrichmentTab from './tabs/EnrichmentTab'
 import SettingsTab from './tabs/SettingsTab'
+import SubmissionsTab from './tabs/SubmissionsTab'
 import type { OverviewStats, ProductsResult } from '@/app/actions/foodDatabase'
 import type { ScraperRun } from '@/types/database'
 
-type Tab = 'overview' | 'products' | 'quality' | 'enrichment' | 'settings'
+type Tab = 'overview' | 'products' | 'submissions' | 'quality' | 'enrichment' | 'settings'
 const TABS: [Tab, string][] = [
   ['overview', 'Overview'],
   ['products', 'Products'],
+  ['submissions', 'Submissions'],
   ['quality', 'Quality'],
   ['enrichment', 'Enrichment'],
   ['settings', 'Settings'],
 ]
 
 export default function FoodDatabaseClient({
-  initialStats, initialRuns, brands, initialProducts,
+  initialStats, initialRuns, brands, initialProducts, pendingSubmissions,
 }: {
   initialStats: OverviewStats
   initialRuns: ScraperRun[]
   brands: string[]
   initialProducts: ProductsResult
+  pendingSubmissions: number
 }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -58,12 +61,18 @@ export default function FoodDatabaseClient({
             }}
           >
             {label}
+            {key === 'submissions' && pendingSubmissions > 0 && (
+              <span style={{ marginLeft: 6, fontSize: 11, fontWeight: 700, color: '#fff', background: C.amber, borderRadius: 999, padding: '1px 7px' }}>
+                {pendingSubmissions}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {tab === 'overview' && <OverviewTab initialStats={initialStats} initialRuns={initialRuns} />}
       {tab === 'products' && <ProductsTab brands={brands} initialProducts={initialProducts} />}
+      {tab === 'submissions' && <SubmissionsTab />}
       {tab === 'quality' && <QualityTab />}
       {tab === 'enrichment' && <EnrichmentTab />}
       {tab === 'settings' && <SettingsTab />}

@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { applyFoodFilters, COVERAGE_FIELDS, type FoodFilters } from '@/lib/foodFilters'
-import type { Food, ScraperRun } from '@/types/database'
+import type { Food, ScraperRun, ProductSubmission } from '@/types/database'
 
 // ---------------------------------------------------------------------------
 // Auth
@@ -558,6 +558,127 @@ export async function clearScraperRuns(): Promise<{ ok: boolean; error?: string 
     return { ok: true }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Clear failed' }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// User-submitted products (Add Missing Product by Photo)
+// ---------------------------------------------------------------------------
+export type SubmissionWithProduct = { submission: ProductSubmission; product: Food | null }
+export type SubmissionStatusFilter = 'pending' | 'approved' | 'rejected' | 'all'
+
+export async function getPendingSubmissionCount(): Promise<number> {
+  try {
+    await requireAdmin()
+    const admin = createAdminClient()
+    const { count } = await admin
+      .from('product_submissions')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+    return count ?? 0
+  } catch {
+    return 0
+  }
+}
+
+export async function listSubmissions(status: SubmissionStatusFilter = 'pending'): Promise<SubmissionWithProduct[]> {
+  await requireAdmin()
+  const admin = createAdminClient()
+  let q = admin.from('product_submissions').select('*').order('created_at', { ascending: false }).limit(200)
+  if (status !== 'all') q = q.eq('status', status)
+  const { data } = await q
+  const submissions = (data ?? []) as ProductSubmission[]
+  if (submissions.length === 0) return []
+
+  const productIds = [...new Set(submissions.map((s) => s.product_id).filter(Boolean))] as string[]
+  const productsById = new Map<string, Food>()
+  if (productIds.length) {
+    const { data: foods } = await admin.from('foods').select('*').in('id', productIds)
+    for (const f of (foods ?? []) as Food[]) productsById.set(f.id, f)
+  }
+  return submissions.map((submission) => ({
+    submission,
+    product: submission.product_id ? productsById.get(submission.product_id) ?? null : null,
+  }))
+}
+
+export async function getSubmissionSignedUrls(
+  frontPath: string,
+  backPath: string,
+): Promise<{ front: string | null; back: string | null; error?: string }> {
+  try {
+    await requireAdmin()
+    const admin = createAdminClient()
+    const [f, b] = await Promise.all([
+      admin.storage.from('product-submissions').createSignedUrl(frontPath, 3600),
+      admin.storage.from('product-submissions').createSignedUrl(backPath, 3600),
+    ])
+    return { front: f.data?.signedUrl ?? null, back: b.data?.signedUrl ?? null }
+  } catch (e) {
+    return { front: null, back: null, error: e instanceof Error ? e.message : 'Could not sign image URLs' }
+  }
+}
+
+export async function approveSubmission(
+  submissionId: string,
+  productId: string,
+  edits: Partial<Food>,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const adminId = await requireAdmin()
+    const admin = createAdminClient()
+    const { id, created_at, submitted_by, submission_id, ...rest } = edits as Record<string, unknown>
+    void id; void created_at; void submitted_by; void submission_id
+    // Write the admin's corrections, then publish + approve so it goes global.
+    const { error: upErr } = await admin
+      .from('foods')
+      .update({ ...rest, verification_status: 'approved', is_published: true, flagged_for_review: false } as never)
+      .eq('id', productId)
+    if (upErr) return { ok: false, error: upErr.message }
+
+    const { error: subErr } = await admin
+      .from('product_submissions')
+      .update({ status: 'approved', reviewed_by: adminId, reviewed_at: new Date().toISOString() })
+      .eq('id', submissionId)
+    if (subErr) return { ok: false, error: subErr.message }
+
+    await audit(adminId, 'product_submission_approve', { submissionId, productId })
+    revalidatePath('/food-database')
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Approve failed' }
+  }
+}
+
+export async function rejectSubmission(
+  submissionId: string,
+  productId: string | null,
+  reason: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const adminId = await requireAdmin()
+    const admin = createAdminClient()
+    const { error: subErr } = await admin
+      .from('product_submissions')
+      .update({ status: 'rejected', reject_reason: reason || null, reviewed_by: adminId, reviewed_at: new Date().toISOString() })
+      .eq('id', submissionId)
+    if (subErr) return { ok: false, error: subErr.message }
+
+    // Soft reject: keep the foods row for audit but mark it rejected + unpublished
+    // so it vanishes from the submitter's search.
+    if (productId) {
+      const { error: upErr } = await admin
+        .from('foods')
+        .update({ verification_status: 'rejected', is_published: false } as never)
+        .eq('id', productId)
+      if (upErr) return { ok: false, error: upErr.message }
+    }
+
+    await audit(adminId, 'product_submission_reject', { submissionId, productId, reason })
+    revalidatePath('/food-database')
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Reject failed' }
   }
 }
 

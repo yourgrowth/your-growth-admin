@@ -20,6 +20,31 @@ export type Food = {
   is_published: boolean | null
   flagged_for_review: boolean | null
   flag_reason: string | null
+  verification_status: 'approved' | 'pending' | 'rejected' | null
+  submitted_by: string | null
+  submission_id: string | null
+  ingredients: string | null
+  allergens: string | null
+  energy_kcal: number | null
+  fibre_total_g: number | null
+  data_quality: string | null
+  created_at: string
+}
+
+export type ProductSubmission = {
+  id: string
+  user_id: string
+  front_image_path: string
+  back_image_path: string
+  extracted: Json | null
+  barcode: string | null
+  name: string | null
+  brand: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  product_id: string | null
+  reject_reason: string | null
+  reviewed_by: string | null
+  reviewed_at: string | null
   created_at: string
 }
 
@@ -626,9 +651,15 @@ export type Database = {
         Relationships: []
       }
       foods: {
-        Row: { id: string; barcode: string | null; name: string | null; brand: string | null; energy_kj: number | null; protein_g: number | null; fat_total_g: number | null; fat_saturated_g: number | null; carbs_g: number | null; sugar_g: number | null; fibre_g: number | null; sodium_mg: number | null; serving_size_g: number | null; source: string | null; image_url: string | null; raw_data: Json | null; is_published: boolean | null; flagged_for_review: boolean | null; flag_reason: string | null; created_at: string }
-        Insert: { id?: string; barcode?: string | null; name?: string | null; brand?: string | null; energy_kj?: number | null; protein_g?: number | null; fat_total_g?: number | null; fat_saturated_g?: number | null; carbs_g?: number | null; sugar_g?: number | null; fibre_g?: number | null; sodium_mg?: number | null; serving_size_g?: number | null; source?: string | null; image_url?: string | null; raw_data?: Json | null; is_published?: boolean | null; flagged_for_review?: boolean | null; flag_reason?: string | null; created_at?: string }
-        Update: Partial<{ barcode: string | null; name: string | null; brand: string | null; energy_kj: number | null; protein_g: number | null; fat_total_g: number | null; fat_saturated_g: number | null; carbs_g: number | null; sugar_g: number | null; fibre_g: number | null; sodium_mg: number | null; serving_size_g: number | null; source: string | null; image_url: string | null; raw_data: Json | null; is_published: boolean | null; flagged_for_review: boolean | null; flag_reason: string | null }>
+        Row: { id: string; barcode: string | null; name: string | null; brand: string | null; energy_kj: number | null; energy_kcal: number | null; protein_g: number | null; fat_total_g: number | null; fat_saturated_g: number | null; carbs_g: number | null; sugar_g: number | null; fibre_g: number | null; fibre_total_g: number | null; sodium_mg: number | null; serving_size_g: number | null; source: string | null; image_url: string | null; raw_data: Json | null; is_published: boolean | null; flagged_for_review: boolean | null; flag_reason: string | null; verification_status: 'approved' | 'pending' | 'rejected' | null; submitted_by: string | null; submission_id: string | null; ingredients: string | null; allergens: string | null; data_quality: string | null; created_at: string }
+        Insert: { id?: string; barcode?: string | null; name?: string | null; brand?: string | null; energy_kj?: number | null; energy_kcal?: number | null; protein_g?: number | null; fat_total_g?: number | null; fat_saturated_g?: number | null; carbs_g?: number | null; sugar_g?: number | null; fibre_g?: number | null; fibre_total_g?: number | null; sodium_mg?: number | null; serving_size_g?: number | null; source?: string | null; image_url?: string | null; raw_data?: Json | null; is_published?: boolean | null; flagged_for_review?: boolean | null; flag_reason?: string | null; verification_status?: 'approved' | 'pending' | 'rejected' | null; submitted_by?: string | null; submission_id?: string | null; ingredients?: string | null; allergens?: string | null; data_quality?: string | null; created_at?: string }
+        Update: Partial<{ barcode: string | null; name: string | null; brand: string | null; energy_kj: number | null; energy_kcal: number | null; protein_g: number | null; fat_total_g: number | null; fat_saturated_g: number | null; carbs_g: number | null; sugar_g: number | null; fibre_g: number | null; fibre_total_g: number | null; sodium_mg: number | null; serving_size_g: number | null; source: string | null; image_url: string | null; raw_data: Json | null; is_published: boolean | null; flagged_for_review: boolean | null; flag_reason: string | null; verification_status: 'approved' | 'pending' | 'rejected' | null; submitted_by: string | null; submission_id: string | null; ingredients: string | null; allergens: string | null; data_quality: string | null }>
+        Relationships: []
+      }
+      product_submissions: {
+        Row: { id: string; user_id: string; front_image_path: string; back_image_path: string; extracted: Json | null; barcode: string | null; name: string | null; brand: string | null; status: 'pending' | 'approved' | 'rejected'; product_id: string | null; reject_reason: string | null; reviewed_by: string | null; reviewed_at: string | null; created_at: string }
+        Insert: { id?: string; user_id: string; front_image_path: string; back_image_path: string; extracted?: Json | null; barcode?: string | null; name?: string | null; brand?: string | null; status?: 'pending' | 'approved' | 'rejected'; product_id?: string | null; reject_reason?: string | null; reviewed_by?: string | null; reviewed_at?: string | null; created_at?: string }
+        Update: Partial<{ status: 'pending' | 'approved' | 'rejected'; product_id: string | null; reject_reason: string | null; reviewed_by: string | null; reviewed_at: string | null }>
         Relationships: []
       }
       scraper_runs: {

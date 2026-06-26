@@ -18,6 +18,7 @@ export const SOURCE_COLORS: Record<string, string> = {
   ollama: C.purple,
   ollama_vision: C.purple,
   manual: C.amber,
+  user_photo: C.cyan,
 }
 
 export function sourceColor(source: string | null): string {
@@ -30,7 +31,7 @@ export function sourceLabel(source: string | null): string {
   const map: Record<string, string> = {
     woolworths: 'Woolworths', coles: 'Coles', open_food_facts: 'Open Food Facts',
     openfoodfacts: 'Open Food Facts', off: 'Open Food Facts',
-    ollama: 'Ollama', ollama_vision: 'Ollama', manual: 'Manual',
+    ollama: 'Ollama', ollama_vision: 'Ollama', manual: 'Manual', user_photo: 'User photo',
   }
   return map[source.toLowerCase()] ?? source
 }
