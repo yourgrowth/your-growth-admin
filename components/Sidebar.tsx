@@ -50,6 +50,14 @@ const nav: { group: string; items: NavItem[] }[] = [
     ],
   },
   {
+    group: 'Data & Intelligence',
+    items: [
+      { label: 'Mastering Yourself', href: '/mastery', icon: 'leaf' },
+      { label: 'Data Control', href: '/data', icon: 'database' },
+      { label: 'Intelligence Models', href: '/data/user_models', icon: 'cpu' },
+    ],
+  },
+  {
     group: 'Business',
     items: [
       { label: 'Subscriptions', href: '/subscriptions', icon: 'card' },
